@@ -3,13 +3,21 @@
     title: string;
     date: string;
     role: string;
-    awardBadge?: string;
+    awardBadge?: string | undefined;
     stack: string[];
     repoUrl: string;
-    descriptionHtml: string;
+    descriptionHtml?: string | undefined;
   }
 
-  let { title, date, role, awardBadge, stack, repoUrl, descriptionHtml }: Props = $props();
+  let { 
+    title, 
+    date, 
+    role, 
+    awardBadge, 
+    stack, 
+    repoUrl, 
+    descriptionHtml = '' 
+  }: Props = $props();
 </script>
 
 <div class="bg-[var(--surface)] border border-[var(--line)] rounded-xl p-7 mb-5">
@@ -27,9 +35,11 @@
     {/if}
   </div>
 
-  <div class="text-[var(--dim)] text-[14.5px] mb-4 [&_ul]:list-disc [&_ul]:ml-4 [&_li]:mb-1">
-    {@html descriptionHtml}
-  </div>
+  {#if descriptionHtml}
+    <div class="text-[var(--dim)] text-[14.5px] mb-4 [&_ul]:list-disc [&_ul]:ml-4 [&_li]:mb-1">
+      {@html descriptionHtml}
+    </div>
+  {/if}
 
   <div class="flex flex-wrap gap-1.5 mb-3.5">
     {#each stack as tag}

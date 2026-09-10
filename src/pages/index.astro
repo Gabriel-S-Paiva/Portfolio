@@ -47,10 +47,10 @@ const projects = await Promise.all(
           title={p.title}
           date={p.date}
           role={p.role}
-          awardBadge={p.awardBadge}
+          awardBadge={p.awardBadge ?? undefined}
           stack={p.stack}
           repoUrl={p.repoUrl}
-          descriptionHtml={p.body}
+          descriptionHtml={p.body ?? ''}
         />
       ))
     )}
