@@ -1,17 +1,65 @@
 ---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.svelte';
+import Hero from '../components/Hero.svelte';
+import About from '../components/About.svelte';
+import Skills from '../components/Skills.svelte';
+import WorkCard from '../components/WorkCard.svelte';
+import Honors from '../components/Honors.svelte';
+import Education from '../components/Education.svelte';
+import Contact from '../components/Contact.svelte';
+import Footer from '../components/Footer.svelte';
+import TerminalDock from '../components/TerminalDock.svelte';
 
+import { getCollection, render } from 'astro:content';
+
+const rawProjects = await getCollection('projects');
+
+// Render markdown entries safely
+const projects = await Promise.all(
+  rawProjects.map(async (project) => {
+    const { Content } = await render(project);
+    return {
+      ...project.data,
+      body: project.body,
+    };
+  })
+);
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="Gabriel Paiva — Backend & Self-Hosted Infrastructure">
+  <Nav />
+  <Hero />
+  <About />
+  <Skills />
+
+  <section id="work" class="max-w-[900px] mx-auto py-15 px-7 border-t border-[var(--line)]">
+    <div class="flex items-baseline gap-3 mb-8">
+      <span class="font-[family-name:var(--font-mono)] text-xs text-[var(--dimmer)]">03</span>
+      <h2 class="font-[family-name:var(--font-display)] text-2xl text-[var(--text)]">Work</h2>
+    </div>
+
+    {projects.length === 0 ? (
+      <p class="text-[var(--dim)] font-mono text-sm">No projects found in collection.</p>
+    ) : (
+      projects.map((p) => (
+        <WorkCard 
+          title={p.title}
+          date={p.date}
+          role={p.role}
+          awardBadge={p.awardBadge}
+          stack={p.stack}
+          repoUrl={p.repoUrl}
+          descriptionHtml={p.body}
+        />
+      ))
+    )}
+  </section>
+
+  <Honors />
+  <Education />
+  <Contact />
+  <Footer />
+
+  <TerminalDock client:load />
+</Layout>
