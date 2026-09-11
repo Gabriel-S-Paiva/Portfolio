@@ -4,6 +4,7 @@ import Nav from '../components/Nav.svelte';
 import Hero from '../components/Hero.svelte';
 import About from '../components/About.svelte';
 import Skills from '../components/Skills.svelte';
+import Projects from '../components/Projects.svelte'
 import WorkCard from '../components/WorkCard.svelte';
 import Honors from '../components/Honors.svelte';
 import Education from '../components/Education.svelte';
@@ -25,6 +26,18 @@ const projects = await Promise.all(
     };
   })
 );
+
+const rawEducationList = await getCollection('education');
+
+const educationList = await Promise.all(
+  rawEducationList.map(async (edu) => {
+    const { Content } = await render(edu);
+    return {
+      ...edu.data,
+      body: edu.body,
+    };
+  })
+);
 ---
 
 <Layout title="Gabriel Paiva — Backend & Self-Hosted Infrastructure">
@@ -32,32 +45,9 @@ const projects = await Promise.all(
   <Hero />
   <About />
   <Skills />
-
-  <section id="work" class="max-w-[900px] mx-auto py-15 px-7 border-t border-[var(--line)]">
-    <div class="flex items-baseline gap-3 mb-8">
-      <span class="font-[family-name:var(--font-mono)] text-xs text-[var(--dimmer)]">03</span>
-      <h2 class="font-[family-name:var(--font-display)] text-2xl text-[var(--text)]">Work</h2>
-    </div>
-
-    {projects.length === 0 ? (
-      <p class="text-[var(--dim)] font-mono text-sm">No projects found in collection.</p>
-    ) : (
-      projects.map((p) => (
-        <WorkCard 
-          title={p.title}
-          date={p.date}
-          role={p.role}
-          awardBadge={p.awardBadge ?? undefined}
-          stack={p.stack}
-          repoUrl={p.repoUrl}
-          descriptionHtml={p.body ?? ''}
-        />
-      ))
-    )}
-  </section>
-
+  <Projects {projects}/>
   <Honors />
-  <Education />
+  <Education {educationList}/>
   <Contact />
   <Footer />
 

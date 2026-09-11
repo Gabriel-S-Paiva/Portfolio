@@ -25,7 +25,18 @@ const awards = defineCollection({
   }),
 });
 
+const education = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: 'src/content/education'}),
+  schema: z.object({
+    degree: z.string(),
+    school: z.string(),
+    dates: z.string(),
+    details: z.string(),
+  })
+})
+
 export const collections = {
   projects,
   awards,
+  education
 };
