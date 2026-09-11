@@ -5,7 +5,6 @@ import Hero from '../components/Hero.svelte';
 import About from '../components/About.svelte';
 import Skills from '../components/Skills.svelte';
 import Projects from '../components/Projects.svelte'
-import WorkCard from '../components/WorkCard.svelte';
 import Honors from '../components/Honors.svelte';
 import Education from '../components/Education.svelte';
 import Contact from '../components/Contact.svelte';
@@ -15,8 +14,6 @@ import TerminalDock from '../components/TerminalDock.svelte';
 import { getCollection, render } from 'astro:content';
 
 const rawProjects = await getCollection('projects');
-
-// Render markdown entries safely
 const projects = await Promise.all(
   rawProjects.map(async (project) => {
     const { Content } = await render(project);
@@ -27,10 +24,20 @@ const projects = await Promise.all(
   })
 );
 
-const rawEducationList = await getCollection('education');
+const rawAwards = await getCollection('awards')
+const awards = await Promise.all(
+  rawAwards.map(async (a) => {
+    const { Content } = await render(a);
+    return {
+      ...a.data,
+      body: a.body,
+    };
+  })
+);
 
+const rawEducation = await getCollection('education');
 const educationList = await Promise.all(
-  rawEducationList.map(async (edu) => {
+  rawEducation.map(async (edu) => {
     const { Content } = await render(edu);
     return {
       ...edu.data,
@@ -46,7 +53,7 @@ const educationList = await Promise.all(
   <About />
   <Skills />
   <Projects {projects}/>
-  <Honors />
+  <Honors {awards}/>
   <Education {educationList}/>
   <Contact />
   <Footer />

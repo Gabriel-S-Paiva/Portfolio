@@ -32,6 +32,7 @@ const education = defineCollection({
     school: z.string(),
     dates: z.string(),
     details: z.string(),
+    order: z.number(),
   })
 })
 

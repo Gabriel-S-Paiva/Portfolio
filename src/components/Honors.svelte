@@ -1,36 +1,16 @@
 <script lang="ts">
-  const awards = [
-    {
-      title: 'Best WebPII Project Award — 1st Place',
-      issuer: 'ESMAD, Politécnico do Porto',
-      date: '2026',
-      description: 'Awarded for backend architecture and implementation on Project SAM (Sistema de Apoio Municipal).'
-    },
-    {
-      title: 'TeamGreen4All Hackathon — 1st Place',
-      issuer: 'Serviços de Ação Social do Politécnico do Porto (SAS P.PORTO)',
-      date: '2026',
-      description: '1st place winner in the student wellbeing and sustainability hackathon as part of the 4BEST initiative.'
-    },
-    {
-      title: 'Invited Speaker — ESMAD Academic Seminar',
-      issuer: 'ESMAD, Licenciatura em TSIW',
-      date: '2026',
-      description: 'Talk: "Sucesso Académico em Contexto de Grupos de Trabalho." Invited following 1st place win in ESMAD Best Project Award.'
-    },
-    {
-      title: '3.ª Edição Concurso de Programação madJS — 1st Place',
-      issuer: 'ESMAD, Politécnico do Porto',
-      date: '2025',
-      description: '1st place in JavaScript/Web programming challenge.'
-    },
-    {
-      title: 'ESMAD Best Project Award — 1st Place',
-      issuer: 'ESMAD, Politécnico do Porto',
-      date: '2025',
-      description: '1st place recognition awarded for PlanIt application development.'
-    }
-  ];
+  interface AwardsItem {
+    title: string;
+    issuer: string;
+    date: string;
+    year: string;
+    order: number;
+    description?: string;
+  }
+
+  let { awards = [] }: { awards: AwardsItem[] } = $props();
+
+  let sortedAwards = $derived([...awards].sort((a, b) => b.order - a.order));
 </script>
 
 <section id="awards" class="max-w-[900px] mx-auto py-15 px-7 border-t border-[var(--line)]">
@@ -40,7 +20,7 @@
   </div>
 
   <div class="divide-y divide-[var(--line)]">
-    {#each awards as item}
+    {#each sortedAwards as item}
       <div class="flex justify-between items-baseline py-4 gap-4">
         <div>
           <strong class="block text-[15px] text-[var(--text)] font-semibold">{item.title}</strong>

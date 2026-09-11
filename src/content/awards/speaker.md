@@ -1,5 +1,5 @@
 ---
-title: "Invited Speaker — ESMAD Academic Seminar"
+title: "Invited Speaker - ESMAD Academic Seminar"
 issuer: "ESMAD, Licenciatura em TSIW"
 date: "2026"
 year: "2026"

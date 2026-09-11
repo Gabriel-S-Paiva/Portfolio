@@ -2,7 +2,7 @@
 title: "Project SAM — Municipal Support Platform"
 date: "2025 — 2026"
 role: "Dual-database REST API backend · team project"
-awardBadge: "🏆 1st Place Award"
+awardBadge: "1st Place Award"
 stack: ["Node.js", "Express", "MySQL", "MongoDB", "Socket.IO", "JWT"]
 repoUrl: "https://github.com/Gabriel-S-Paiva/p2-sam-backend"
 ---

@@ -4,9 +4,12 @@
     school: string;
     details: string;
     dates: string;
+    order: number;
   }
 
   let { educationList = [] }: { educationList: EducationItem[] } = $props();
+
+  let sortedEdu = $derived([...educationList].sort((a, b) => b.order - a.order));
 </script>
 
 <section id="education" class="max-w-[900px] mx-auto py-15 px-7 border-t border-[var(--line)]">
@@ -16,7 +19,7 @@
   </div>
 
   <div class="divide-y divide-[var(--line)]">
-    {#each educationList as edu}
+    {#each sortedEdu as edu}
       <div class="flex justify-between items-baseline py-4 gap-4">
         <div>
           <strong class="block text-[15px] text-[var(--text)] font-semibold">{edu.degree}</strong>
