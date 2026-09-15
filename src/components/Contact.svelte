@@ -1,8 +1,9 @@
-<section id="contact" class="max-w-[900px] mx-auto py-15 px-7 border-t border-[var(--line)]">
-  <div class="flex items-baseline gap-3 mb-8">
-    <span class="font-[family-name:var(--font-mono)] text-xs text-[var(--dimmer)]">06</span>
-    <h2 class="font-[family-name:var(--font-display)] text-2xl text-[var(--text)]">Contact</h2>
-  </div>
+<script lang="ts">
+  import SectionHead from './SectionHead.svelte';
+</script>
+
+<section id="contact" class="gitline max-w-[900px] mx-auto py-15 px-7 border-t border-[var(--line)]" data-commit='git commit -m "feat: contact"'>
+  <SectionHead addr="06" title="Contact" />
 
   <div class="flex gap-3.5 flex-wrap">
     <a href="mailto:mr.sousapaiva@gmail.com" class="flex-1 min-w-[180px] bg-[var(--surface)] border border-[var(--line)] rounded-lg p-4.5 no-underline hover:border-[var(--brass)] transition-colors">

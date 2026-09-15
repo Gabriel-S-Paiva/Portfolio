@@ -6,26 +6,29 @@
     awardBadge?: string | undefined;
     stack: string[];
     repoUrl: string;
+    commit: string;
     descriptionHtml?: string | undefined;
   }
 
-  let { 
-    title, 
-    date, 
-    role, 
-    awardBadge, 
-    stack, 
-    repoUrl, 
-    descriptionHtml = '' 
+  let {
+    title,
+    date,
+    role,
+    awardBadge,
+    stack,
+    repoUrl,
+    commit,
+    descriptionHtml = ''
   }: Props = $props();
 </script>
 
-<div class="bg-[var(--surface)] border border-[var(--line)] rounded-xl p-7 mb-5">
+<div class="project-card bg-[var(--surface)] border border-[var(--line)] rounded-xl p-7 mb-5" data-commit={commit}>
+  <div class="commit-msg commit-branch"></div>
   <div class="flex justify-between items-baseline mb-2.5 flex-wrap gap-2">
-    <h3 class="text-[19px] text-[var(--text)] font-semibold">{title}</h3>
+    <h3 class="node-anchor text-[19px] text-[var(--text)] font-semibold">{title}</h3>
     <span class="font-[family-name:var(--font-mono)] text-xs text-[var(--dimmer)]">{date}</span>
   </div>
-  
+
   <div class="text-xs text-[var(--brass)] mb-3.5 flex items-center gap-2">
     {role}
     {#if awardBadge}

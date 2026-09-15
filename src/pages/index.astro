@@ -10,6 +10,7 @@ import Education from '../components/Education.svelte';
 import Contact from '../components/Contact.svelte';
 import Footer from '../components/Footer.svelte';
 import TerminalDock from '../components/TerminalDock.svelte';
+import GitGraph from '../components/GitGraph.svelte';
 
 import { getCollection, render } from 'astro:content';
 
@@ -17,10 +18,7 @@ const rawProjects = await getCollection('projects');
 const projects = await Promise.all(
   rawProjects.map(async (project) => {
     const { Content } = await render(project);
-    return {
-      ...project.data,
-      body: project.body,
-    };
+    return { ...project.data, body: project.body };
   })
 );
 
@@ -28,10 +26,7 @@ const rawAwards = await getCollection('awards')
 const awards = await Promise.all(
   rawAwards.map(async (a) => {
     const { Content } = await render(a);
-    return {
-      ...a.data,
-      body: a.body,
-    };
+    return { ...a.data, body: a.body };
   })
 );
 
@@ -39,10 +34,7 @@ const rawEducation = await getCollection('education');
 const educationList = await Promise.all(
   rawEducation.map(async (edu) => {
     const { Content } = await render(edu);
-    return {
-      ...edu.data,
-      body: edu.body,
-    };
+    return { ...edu.data, body: edu.body };
   })
 );
 ---
@@ -59,4 +51,5 @@ const educationList = await Promise.all(
   <Footer />
 
   <TerminalDock client:load />
+  <GitGraph client:load />
 </Layout>

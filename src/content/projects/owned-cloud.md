@@ -4,6 +4,7 @@ date: "In progress · target v1.0.0"
 role: "Self-hosted family cloud storage platform · solo project"
 stack: ["Go", "SQLite", "SvelteKit 5", "Docker", "Caddy", "GitHub Actions"]
 repoUrl: "https://github.com/Gabriel-S-Paiva/Cloud"
+commit: 'git commit -m "feat: owned cloud"'
 ---
 A self-hosted Dropbox-style file cloud with role-based auth, storage quota enforcement, and granular folder sharing options.
 

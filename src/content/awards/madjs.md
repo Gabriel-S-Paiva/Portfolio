@@ -4,5 +4,6 @@ issuer: "ESMAD, Politécnico do Porto"
 date: "2025"
 year: "2025"
 order: 1
+commit: 'git commit -m "award: madjs 1st place"'
 ---
 First place winner in the annual JavaScript and web programming challenge hosted at ESMAD.

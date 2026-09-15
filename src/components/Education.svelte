@@ -1,35 +1,35 @@
 <script lang="ts">
+  import TimelineRow from './TimelineRow.svelte';
+  import SectionHead from './SectionHead.svelte';
+
   interface EducationItem {
     degree: string;
     school: string;
     details: string;
     dates: string;
     order: number;
+    commit?: string;
   }
 
   let { educationList = [] }: { educationList: EducationItem[] } = $props();
-
   let sortedEdu = $derived([...educationList].sort((a, b) => b.order - a.order));
+
+  function fallbackCommit(title: string) {
+    return `git commit -m "edu: ${title.toLowerCase()}"`;
+  }
 </script>
 
-<section id="education" class="max-w-[900px] mx-auto py-15 px-7 border-t border-[var(--line)]">
-  <div class="flex items-baseline gap-3 mb-8">
-    <span class="font-[family-name:var(--font-mono)] text-xs text-[var(--dimmer)]">05</span>
-    <h2 class="font-[family-name:var(--font-display)] text-2xl text-[var(--text)]">Education</h2>
-  </div>
-
-  <div class="divide-y divide-[var(--line)]">
+<section id="education" class="gitline max-w-[900px] mx-auto py-15 px-7 border-t border-[var(--line)]" data-subitems=".timeline-row" data-commit='git commit -m "feat: education"'>
+  <SectionHead addr="05" title="Education" />
+  <div>
     {#each sortedEdu as edu}
-      <div class="flex justify-between items-baseline py-4 gap-4">
-        <div>
-          <strong class="block text-[15px] text-[var(--text)] font-semibold">{edu.degree}</strong>
-          <span class="text-[13px] text-[var(--dim)]">{edu.school}</span>
-          <p class="text-[12.5px] text-[var(--dimmer)] mt-1">{edu.details}</p>
-        </div>
-        <div class="font-[family-name:var(--font-mono)] text-xs text-[var(--dimmer)] whitespace-nowrap text-right">
-          {edu.dates}
-        </div>
-      </div>
+      <TimelineRow
+        title={edu.degree}
+        subtitle={edu.school}
+        note={edu.details}
+        date={edu.dates}
+        commit={edu.commit ?? fallbackCommit(edu.degree)}
+      />
     {/each}
   </div>
 </section>
