@@ -11,6 +11,7 @@ import Contact from '../components/Contact.svelte';
 import Footer from '../components/Footer.svelte';
 import TerminalDock from '../components/TerminalDock.svelte';
 import GitGraph from '../components/GitGraph.svelte';
+import HoverPreview from '../components/HoverPreview.svelte';
 
 import { getCollection, render } from 'astro:content';
 
@@ -40,8 +41,8 @@ const educationList = await Promise.all(
 ---
 
 <Layout title="Gabriel Paiva - Backend & Self-Hosted Infrastructure">
-  <Nav />
-  <Hero />
+  <Nav client:load />
+  <Hero client:load />
   <About />
   <Skills />
   <Projects {projects}/>
@@ -52,4 +53,5 @@ const educationList = await Promise.all(
 
   <TerminalDock client:load />
   <GitGraph client:load />
+  <HoverPreview client:load />
 </Layout>

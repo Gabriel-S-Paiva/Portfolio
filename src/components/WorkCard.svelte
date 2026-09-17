@@ -7,6 +7,7 @@
     stack: string[];
     repoUrl: string;
     commit: string;
+    shot: string;
     descriptionHtml?: string | undefined;
   }
 
@@ -18,11 +19,12 @@
     stack,
     repoUrl,
     commit,
+    shot,
     descriptionHtml = ''
   }: Props = $props();
 </script>
 
-<div class="project-card bg-[var(--surface)] border border-[var(--line)] rounded-xl p-7 mb-5" data-commit={commit}>
+<div class="project-card bg-[var(--surface)] border border-[var(--line)] rounded-xl p-7 mb-5" data-commit={commit} data-shot={shot}>
   <div class="commit-msg commit-branch"></div>
   <div class="flex justify-between items-baseline mb-2.5 flex-wrap gap-2">
     <h3 class="node-anchor text-[19px] text-[var(--text)] font-semibold">{title}</h3>
@@ -56,5 +58,8 @@
     <a href={repoUrl} target="_blank" rel="noopener" class="text-[var(--dim)] underline decoration-dotted decoration-[var(--dimmer)] hover:text-[var(--brass)] hover:decoration-[var(--brass)]">
       GitHub Repository ↗
     </a>
+  </div>
+  <div class="text-[10.5px] text-[var(--dimmer)] mt-2.5 font-[family-name:var(--font-mono)]">
+    hover the card — the preview tilts a little with your cursor
   </div>
 </div>

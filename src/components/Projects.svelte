@@ -10,6 +10,7 @@
     stack: string[];
     repoUrl: string;
     commit?: string;
+    shot?: string;
     body?: string;
   }
 
@@ -35,6 +36,7 @@
         stack={p.stack}
         repoUrl={p.repoUrl}
         commit={p.commit ?? fallbackCommit(p.title)}
+        shot={p.shot ?? `[ screenshot placeholder — ${p.title} ]`}
         descriptionHtml={p.body ?? ''}
       />
     {/each}

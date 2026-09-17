@@ -12,6 +12,7 @@ const projects = defineCollection({
     stack: z.array(z.string()),
     repoUrl: z.string().url(),
     commit: z.string().optional(),
+    shot: z.string().optional(),
   }),
 });
 

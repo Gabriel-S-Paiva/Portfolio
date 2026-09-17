@@ -1,10 +1,22 @@
+<script lang="ts">
+  import TypedHeadline from './TypedHeadline.svelte';
+  import ScrollCue from './ScrollCue.svelte';
+
+  const headlineSegments = [
+    { text: 'I build ' },
+    { text: 'backend systems', emphasis: true },
+    { text: ' & self-hosted infrastructure.' },
+  ];
+</script>
+
 <header class="py-[90px] pb-[70px] max-w-[900px] mx-auto px-7">
   <span class="font-[family-name:var(--font-mono)] text-xs text-[var(--green)] tracking-[0.04em] mb-[18px] block before:content-['branch:_'] before:text-[var(--dimmer)]">
     main
   </span>
-  <h1 class="font-[family-name:var(--font-display)] text-4xl sm:text-[52px] font-normal leading-[1.08] text-[var(--text)] mb-5 tracking-[-0.01em]">
-    I build <em class="text-[var(--brass)] not-italic">backend systems</em> & self-hosted infrastructure.
-  </h1>
+  <TypedHeadline
+    segments={headlineSegments}
+    class="font-[family-name:var(--font-display)] text-4xl sm:text-[52px] font-normal leading-[1.08] text-[var(--text)] mb-5 tracking-[-0.01em] min-h-[2.2em]"
+  />
   <p class="text-[18px] text-[var(--dim)] max-w-[600px] mb-7 leading-relaxed">
     Web Information Systems and Technologies student at ESMAD / Politécnico do Porto. Winner of 4 coding competitions & hackathons, focused on REST APIs, backend architecture, and self-hosting services on hardware I assemble myself.
   </p>
@@ -17,3 +29,5 @@
     </a>
   </div>
 </header>
+
+<ScrollCue target="about" />

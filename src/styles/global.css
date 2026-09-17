@@ -15,10 +15,23 @@
   --font-mono: ui-monospace, 'JetBrains Mono', 'SF Mono', Consolas, monospace;
 }
 
+[data-theme="light"] {
+  --bg: #ede9df;
+  --surface: #f7f5ee;
+  --surface-2: #efece1;
+  --line: #d9d3c2;
+  --text: #1c1c18;
+  --dim: #6b6a5f;
+  --dimmer: #96937f;
+  --brass: #a9762f;
+  --green: #2f8f5c;
+}
+
 body {
   background-color: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
+  transition: background-color .25s ease, color .25s ease;
 }
 
 ::-webkit-scrollbar { width: 8px; }
