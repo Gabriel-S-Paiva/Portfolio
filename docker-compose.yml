@@ -1,0 +1,11 @@
+services:
+  portfolio:
+    build: .
+    container_name: portfolio-app
+    restart: unless-stopped
+    networks:
+      - global-web
+
+networks:
+  global-web:
+    external: true
