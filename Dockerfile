@@ -1,6 +1,6 @@
 FROM node:lts-alpine AS build
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN npm install -g pnpm@latest
 
 WORKDIR /app
 
