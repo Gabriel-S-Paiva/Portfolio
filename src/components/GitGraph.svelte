@@ -93,7 +93,10 @@
       const lineEls = Array.from(svg.querySelectorAll<SVGGeometryElement>('.main-line, .branch-line'));
       lineEls.forEach(el => {
         const len = el.getTotalLength();
+        const bbox = el.getBBox();
         el.dataset.len = String(len);
+        el.dataset.y0 = String(bbox.y);
+        el.dataset.y1 = String(bbox.y + bbox.height);
         el.style.strokeDasharray = String(len);
         el.style.strokeDashoffset = reduced ? '0' : String(len);
       });
@@ -170,10 +173,14 @@
       const rect = g.section.getBoundingClientRect();
       if (rect.bottom < -400 || rect.top > window.innerHeight + 400) return;
 
-      const progress = Math.min(1, Math.max(0, (refY - rect.top) / g.H));
+      // each line draws based on its OWN y-span, not the section's — this is the fix
       g.lineEls.forEach(el => {
+        const y0 = parseFloat(el.dataset.y0 ?? '0');
+        const y1 = parseFloat(el.dataset.y1 ?? '0');
+        const span = Math.max(y1 - y0, 1);
+        const lineProgress = Math.min(1, Math.max(0, (refY - rect.top - y0) / span));
         const len = parseFloat(el.dataset.len ?? '0');
-        el.style.strokeDashoffset = String(len * (1 - progress));
+        el.style.strokeDashoffset = String(len * (1 - lineProgress));
       });
 
       if (g.initCaption && !g.initDone) {
