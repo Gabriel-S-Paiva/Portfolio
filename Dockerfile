@@ -6,8 +6,8 @@ WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
 
-# Pass network concurrency directly to the install command
-RUN pnpm install --frozen-lockfile --network-concurrency=1
+# Disable build script enforcement and limit concurrency
+RUN pnpm install --frozen-lockfile --network-concurrency=1 --config.ignore-scripts=false
 
 COPY . .
 RUN pnpm run build
