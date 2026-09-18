@@ -2,7 +2,12 @@ services:
   portfolio:
     build:
       context: .
-      dockerfile: Dockerfile
       network: host
-    ports:
-      - "80:80"
+    container_name: portfolio-app
+    restart: unless-stopped
+    networks:
+      - global-web
+
+networks:
+  global-web:
+    external: true

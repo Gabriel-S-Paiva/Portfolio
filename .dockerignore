@@ -1,6 +1,7 @@
 # Build and dependency directories
 node_modules
 .astro
+.vscode
 dist
 
 # Git and CI/CD
