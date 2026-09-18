@@ -13,31 +13,35 @@ import TerminalDock from '../components/TerminalDock.svelte';
 import GitGraph from '../components/GitGraph.svelte';
 import HoverPreview from '../components/HoverPreview.svelte';
 
-import { getCollection, render } from 'astro:content';
+import { getCollection } from 'astro:content';
+
+function fallbackCommit(prefix: string, title: string) {
+  return `git commit -m "${prefix}: ${title.toLowerCase()}"`;
+}
 
 const rawProjects = await getCollection('projects');
-const projects = await Promise.all(
-  rawProjects.map(async (project) => {
-    const { Content } = await render(project);
-    return { ...project.data, body: project.body };
-  })
-);
+const projects = rawProjects.map((entry) => ({
+  ...entry.data,
+  id: entry.id,
+  body: entry.body ?? '',
+  commit: entry.data.commit ?? fallbackCommit('feat', entry.data.title),
+}));
 
-const rawAwards = await getCollection('awards')
-const awards = await Promise.all(
-  rawAwards.map(async (a) => {
-    const { Content } = await render(a);
-    return { ...a.data, body: a.body };
-  })
-);
+const rawAwards = await getCollection('awards');
+const awards = rawAwards.map((entry) => ({
+  ...entry.data,
+  id: entry.id,
+  body: entry.body ?? '',
+  commit: entry.data.commit ?? fallbackCommit('award', entry.data.title),
+}));
 
 const rawEducation = await getCollection('education');
-const educationList = await Promise.all(
-  rawEducation.map(async (edu) => {
-    const { Content } = await render(edu);
-    return { ...edu.data, body: edu.body };
-  })
-);
+const educationList = rawEducation.map((entry) => ({
+  ...entry.data,
+  id: entry.id,
+  body: entry.body ?? '',
+  commit: entry.data.commit ?? fallbackCommit('edu', entry.data.degree),
+}));
 ---
 
 <Layout title="Gabriel Paiva - Backend & Self-Hosted Infrastructure">
@@ -51,7 +55,7 @@ const educationList = await Promise.all(
   <Contact />
   <Footer />
 
-  <TerminalDock client:load />
+  <TerminalDock client:load {projects} {awards} {educationList} />
   <GitGraph client:load />
   <HoverPreview client:load />
 </Layout>
