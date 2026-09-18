@@ -4,8 +4,8 @@ RUN npm install -g pnpm@latest
 
 WORKDIR /app
 
-# Copy all pnpm and package configuration files first
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# Copy configuration files first
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 
 # Run install with frozen lockfile
 RUN pnpm install --frozen-lockfile --network-concurrency=1
