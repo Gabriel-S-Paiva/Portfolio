@@ -1,3 +1,7 @@
-allowBuilds:
-  esbuild: true
-  sharp: true
+packages:
+  - '.'
+
+onlyBuiltDependencies:
+  - esbuild
+  - '@esbuild/linux-x64'
+  - '@img/sharp-libvips-linuxmusl-x64'
