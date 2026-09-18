@@ -6,10 +6,8 @@ WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
 
-# Limit network concurrency to 1 to prevent Wi-Fi packet drops
-RUN pnpm config set max-sockets 1 && \
-    pnpm config set network-concurrency 1 && \
-    pnpm install --frozen-lockfile
+# Pass network concurrency directly to the install command
+RUN pnpm install --frozen-lockfile --network-concurrency=1
 
 COPY . .
 RUN pnpm run build
