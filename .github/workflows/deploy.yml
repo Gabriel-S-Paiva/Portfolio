@@ -9,7 +9,7 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on: [self-hosted, portfolio]
+    runs-on: self-hosted
     steps:
       - run: |
           cd ~/Portfolio
