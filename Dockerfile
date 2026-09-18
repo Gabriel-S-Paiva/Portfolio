@@ -6,9 +6,9 @@ WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
 
-RUN pnpm config set fetch-retries 5 && \
-    pnpm config set fetch-retry-mintimeout 20000 && \
-    pnpm config set fetch-retry-maxtimeout 120000 && \
+# Limit network concurrency to 1 to prevent Wi-Fi packet drops
+RUN pnpm config set max-sockets 1 && \
+    pnpm config set network-concurrency 1 && \
     pnpm install --frozen-lockfile
 
 COPY . .
