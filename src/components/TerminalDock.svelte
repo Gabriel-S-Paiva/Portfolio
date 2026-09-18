@@ -1,31 +1,79 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+  import { skillGroups, slugify } from '../lib/skills';
+  import { shortHash } from '../lib/hash';
+
+  type Branch = 'main' | 'skills' | 'work' | 'honors' | 'education';
+  type Entry = { file: string; message: string; content: string };
+
+  interface ProjectItem { id: string; title: string; commit: string; body: string }
+  interface AwardItem { id: string; title: string; commit: string; body: string }
+  interface EduItem { id: string; degree: string; commit: string; details: string; body: string }
+
+  let { projects, awards, educationList }: {
+    projects: ProjectItem[];
+    awards: AwardItem[];
+    educationList: EduItem[];
+  } = $props();
+
+  const BRANCHES: Branch[] = ['main', 'skills', 'work', 'honors', 'education'];
+
   let isOpen = $state(false);
   let commandInput = $state('');
   let terminalHistory = $state<{ text: string; type?: 'dim' | 'err' | 'hl' }[]>([]);
+  let currentBranch = $state<Branch>('main');
+  let mainEntries = $state<Entry[]>([{ file: '', message: 'git init', content: 'initialized empty repository' }]);
 
-  const commits = [
-    { hash:'f9a8b7c', branch:'main', date:'2026-06', msg:'award: 1st Place Best WebPII Project Award for Project SAM', desc:'Recognized for backend system architecture, dual-database integration (MySQL+MongoDB), and JWT security.' },
-    { hash:'e8d7c6b', branch:'main', date:'2026-05', msg:'award: 1st Place TeamGreen4All Hackathon', desc:'Organized by SAS P.PORTO (4BEST initiative).' },
-    { hash:'a1b2c3d', branch:'cloud/main', date:'2026-04', msg:'ci: add govulncheck, pnpm audit and Dependabot to Owned Cloud', desc:'GitHub Actions workflow with 67% test coverage on Go storage layer.' },
-    { hash:'9c8b7a6', branch:'cloud/backend', date:'2026-03', msg:'feat: chunked two-phase upload + quota reservation', desc:'Go backend with chunk upload handling and strict storage limits.' },
-    { hash:'6a7b8c9', branch:'cloud/infra', date:'2026-02', msg:'deploy: Caddy single-origin reverse proxy for LAN HTTP', desc:'HttpOnly cookie session support configured for local homelab server.' },
-    { hash:'0f9e8d7', branch:'education', date:'2024-09', msg:'esmad: start BSc in Web Information Systems and Technologies', desc:'Focusing on web systems engineering and software architecture.' },
-  ];
+  const branchEntries = $derived<Record<Branch, Entry[]>>({
+    main: mainEntries,
+    skills: skillGroups.map(g => ({
+      file: `${slugify(g.title)}.txt`,
+      message: g.commit,
+      content: g.skills.join(', '),
+    })),
+    work: projects.map(p => ({
+      file: `${p.id}.md`,
+      message: p.commit,
+      content: p.body?.trim() || '(no description)',
+    })),
+    honors: awards.map(a => ({
+      file: `${a.id}.md`,
+      message: a.commit,
+      content: a.body?.trim() || '(no description)',
+    })),
+    education: educationList.map(e => ({
+      file: `${e.id}.md`,
+      message: e.commit,
+      content: e.body?.trim() || e.details,
+    })),
+  });
 
-  const skills = {
-    languages: ['JavaScript (ES6+)','TypeScript','Go','Python','SQL (MySQL)','PHP','HTML5/CSS3'],
-    backend: ['Node.js','Express','REST APIs','WebSockets','SQLite','MySQL','MongoDB','JWT'],
-    devops: ['Docker','Docker Compose','Caddy','GitHub Actions (CI/CD)','go test','Vitest','Git'],
-    frontend: ['SvelteKit 5','Vue.js','Three.js','Tailwind CSS','Figma'],
-  };
+  const allTagged = $derived(
+    (Object.entries(branchEntries) as [Branch, Entry[]][]).flatMap(([branch, entries]) =>
+      entries.map(e => ({ branch, ...e, hash: shortHash(e.message) }))
+    )
+  );
+
+  onMount(() => {
+    // main's log is read live from the DOM GitGraph already annotated — same source, never drifts
+    const sections = Array.from(document.querySelectorAll<HTMLElement>('.gitline'));
+    const entries: Entry[] = [{ file: '', message: 'git init', content: 'initialized empty repository' }];
+    sections.forEach(sec => {
+      const msg = sec.dataset.commit;
+      if (msg) entries.push({ file: sec.id, message: msg, content: '' });
+    });
+    mainEntries = entries;
+  });
+
+  function push(text: string, type?: 'dim' | 'err' | 'hl') {
+    terminalHistory.push({ text, type });
+  }
 
   function openTerminal() {
     isOpen = true;
     if (terminalHistory.length === 0) {
-      terminalHistory.push(
-        { text: "welcome — interactive shell for Gabriel Paiva's portfolio.", type: 'dim' },
-        { text: "type 'help' to see available commands.", type: 'dim' }
-      );
+      push("welcome — interactive shell for Gabriel Paiva's portfolio.", 'dim');
+      push("type 'help' to see available commands.", 'dim');
     }
   }
 
@@ -36,78 +84,96 @@
   function executeCommand(e: KeyboardEvent) {
     if (e.key !== 'Enter') return;
     const cmd = commandInput.trim();
-    terminalHistory.push({ text: `> ${cmd}` });
+    push(`> ${cmd}`);
     commandInput = '';
-
     if (!cmd) return;
     const parts = cmd.split(/\s+/);
+    const entries = branchEntries[currentBranch];
 
     if (cmd === 'help') {
-      ['help', 'git log', 'git log --oneline', 'git branch', 'git show <hash>', 'cat skills.json', 'cat README.md', 'awards', 'contact', 'clear']
-        .forEach(c => terminalHistory.push({ text: `  ${c}`, type: 'dim' }));
-    } else if (cmd === 'git log') {
-      commits.forEach(c => {
-        terminalHistory.push({ text: `commit ${c.hash} (${c.branch})`, type: 'hl' });
-        terminalHistory.push({ text: `Date: ${c.date}` });
-        terminalHistory.push({ text: `    ${c.msg}` });
-        terminalHistory.push({ text: `    ${c.desc}`, type: 'dim' });
-      });
-    } else if (cmd === 'git log --oneline') {
-      commits.forEach(c => terminalHistory.push({ text: `${c.hash} ${c.msg}` }));
+      [
+        'help', 'git branch', 'git checkout <branch>', 'git log', 'git log --oneline',
+        'git show <hash>', 'ls', 'cat <file>', 'cat README.md', 'contact', 'clear'
+      ].forEach(c => push(`  ${c}`, 'dim'));
+      push(`(currently on branch '${currentBranch}')`, 'dim');
+
     } else if (cmd === 'git branch') {
-      [...new Set(commits.map(c => c.branch))].forEach(b => terminalHistory.push({ text: `  ${b}` }));
-    } else if (parts[0] === 'git' && parts[1] === 'show') {
-      const c = commits.find(x => x.hash === parts[2]);
-      if (c) {
-        terminalHistory.push({ text: `commit ${c.hash}`, type: 'hl' });
-        terminalHistory.push({ text: c.msg });
-        terminalHistory.push({ text: c.desc, type: 'dim' });
+      BRANCHES.forEach(b => push(`${b === currentBranch ? '* ' : '  '}${b}`));
+
+    } else if (parts[0] === 'git' && parts[1] === 'checkout') {
+      const target = parts[2] as Branch;
+      if (BRANCHES.includes(target)) {
+        currentBranch = target;
+        push(`Switched to branch '${target}'`);
       } else {
-        terminalHistory.push({ text: `fatal: bad object '${parts[2] || ''}'`, type: 'err' });
+        push(`error: pathspec '${parts[2] ?? ''}' did not match any file(s) known to git`, 'err');
       }
-    } else if (cmd === 'cat skills.json') {
-      Object.entries(skills).forEach(([k, v]) => {
-        terminalHistory.push({ text: `"${k}": [${v.join(', ')}]` });
+
+    } else if (cmd === 'git log') {
+      if (entries.length === 0) push('(nothing here yet)', 'dim');
+      entries.forEach(en => {
+        push(`commit ${shortHash(en.message)}`, 'hl');
+        push(`    ${en.message}`);
       });
-    } else if (cmd === 'cat README.md') {
-      terminalHistory.push({ text: '# Gabriel Paiva', type: 'hl' });
-      terminalHistory.push({ text: 'BSc Student in Web Information Systems and Technologies @ ESMAD / Politécnico do Porto.' });
-      terminalHistory.push({ text: 'Focus: Backend Systems, REST APIs, and Self-Hosted Infrastructure.' });
-    } else if (cmd === 'awards') {
-      terminalHistory.push({ text: '1st Place — Best WebPII Project Award (ESMAD, 2026)' });
-      terminalHistory.push({ text: '1st Place — TeamGreen4All Hackathon (SAS P.PORTO, 2026)' });
-      terminalHistory.push({ text: 'Invited Speaker — ESMAD Seminar (2026)' });
-      terminalHistory.push({ text: '1st Place — 3.ª Edição Concurso madJS (ESMAD, 2025)' });
-      terminalHistory.push({ text: '1st Place — ESMAD Best Project Award (2024/25)' });
+
+    } else if (cmd === 'git log --oneline') {
+      entries.forEach(en => push(`${shortHash(en.message)} ${en.message}`));
+
+    } else if (parts[0] === 'git' && parts[1] === 'show') {
+      const found = allTagged.find(en => en.hash === parts[2]);
+      if (found) {
+        push(`commit ${found.hash} (${found.branch})`, 'hl');
+        push(found.message);
+        if (found.content) push(found.content, 'dim');
+      } else {
+        push(`fatal: bad object '${parts[2] ?? ''}'`, 'err');
+      }
+
+    } else if (cmd === 'ls') {
+      if (currentBranch === 'main') push('README.md');
+      else if (entries.length === 0) push('(empty)');
+      else push(entries.map(en => en.file).join('  '));
+
+    } else if (parts[0] === 'cat' && parts[1] === 'README.md') {
+      push('# Gabriel Paiva', 'hl');
+      push('BSc Student in Web Information Systems and Technologies @ ESMAD / Politécnico do Porto.');
+      push('Focus: Backend Systems, REST APIs, and Self-Hosted Infrastructure.');
+
+    } else if (parts[0] === 'cat') {
+      const file = parts[1];
+      const found = entries.find(en => en.file === file);
+      if (found) push(found.content || '(empty file)');
+      else push(`cat: ${file ?? ''}: No such file or directory`, 'err');
+
     } else if (cmd === 'contact') {
-      terminalHistory.push({ text: 'email: mr.sousapaiva@gmail.com' });
-      terminalHistory.push({ text: 'github: https://github.com/Gabriel-S-Paiva' });
+      push('email: mr.sousapaiva@gmail.com');
+      push('github: https://github.com/Gabriel-S-Paiva');
+
     } else if (cmd === 'clear') {
       terminalHistory = [];
+
     } else {
-      terminalHistory.push({ text: `command not found: ${cmd} — type 'help'`, type: 'err' });
+      push(`command not found: ${cmd} — type 'help'`, 'err');
     }
   }
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
 
-<!-- Dock Bar -->
 <div class="fixed bottom-5 left-1/2 -translate-x-1/2 w-[min(480px,90vw)] z-40">
-  <button 
+  <button
     onclick={openTerminal}
     class="w-full flex items-center gap-2.5 bg-[var(--surface-2)] border border-[var(--line)] rounded-full px-4 py-3 cursor-pointer shadow-lg hover:border-[#3a4150] transition-colors"
   >
     <span class="text-[var(--green)] font-[family-name:var(--font-mono)] text-sm">›</span>
-    <input readonly placeholder="try: git log --oneline" class="bg-transparent border-none outline-none text-[var(--text)] font-[family-name:var(--font-mono)] text-[13.5px] w-full cursor-pointer placeholder:text-[var(--dimmer)]" />
+    <input readonly placeholder="try: git checkout skills" class="bg-transparent border-none outline-none text-[var(--text)] font-[family-name:var(--font-mono)] text-[13.5px] w-full cursor-pointer placeholder:text-[var(--dimmer)]" />
   </button>
 </div>
 
-<!-- Modal Overlay -->
 {#if isOpen}
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_interactive_supports_focus -->
-  <div 
+  <div
     role="button"
     tabindex="-1"
     onclick={(e) => { if (e.target === e.currentTarget) isOpen = false; }}
@@ -115,7 +181,7 @@
   >
     <div class="w-[min(680px,92vw)] h-[min(480px,65vh)] bg-[var(--surface-2)] border border-[var(--line)] rounded-xl flex flex-col shadow-2xl overflow-hidden cursor-auto">
       <div class="flex justify-between items-center px-4 py-2.5 border-b border-[var(--line)] font-[family-name:var(--font-mono)] text-xs text-[var(--dimmer)]">
-        <span>gabrielpaiva/portfolio — terminal</span>
+        <span>gabrielpaiva/portfolio — terminal · ({currentBranch})</span>
         <button type="button" onclick={() => isOpen = false} class="text-[var(--dim)] hover:text-[var(--text)] cursor-pointer bg-transparent border-none">esc ✕</button>
       </div>
 
@@ -129,12 +195,12 @@
 
       <div class="flex items-center gap-2 px-4 py-2.5 border-t border-[var(--line)]">
         <span class="text-[var(--green)] font-[family-name:var(--font-mono)]">›</span>
-        <input 
+        <input
           bind:value={commandInput}
           onkeydown={executeCommand}
-          placeholder="type 'help'" 
-          autocomplete="off" 
-          spellcheck="false" 
+          placeholder="type 'help'"
+          autocomplete="off"
+          spellcheck="false"
           class="flex-1 bg-transparent border-none outline-none text-[var(--text)] font-[family-name:var(--font-mono)] text-xs"
         />
       </div>

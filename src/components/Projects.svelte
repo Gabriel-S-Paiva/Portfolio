@@ -3,22 +3,19 @@
   import SectionHead from './SectionHead.svelte';
 
   interface Project {
+    id: string;
     title: string;
     date: string;
     role: string;
     awardBadge?: string;
     stack: string[];
     repoUrl: string;
-    commit?: string;
+    commit: string;
     shot?: string;
     body?: string;
   }
 
   let { projects = [] }: { projects: Project[] } = $props();
-
-  function fallbackCommit(title: string) {
-    return `git commit -m "feat: ${title.toLowerCase()}"`;
-  }
 </script>
 
 <section id="work" class="gitline max-w-[900px] mx-auto py-15 px-7 border-t border-[var(--line)]" data-subitems=".project-card" data-commit='git commit -m "feat: work"'>
@@ -35,7 +32,7 @@
         awardBadge={p.awardBadge ?? undefined}
         stack={p.stack}
         repoUrl={p.repoUrl}
-        commit={p.commit ?? fallbackCommit(p.title)}
+        commit={p.commit}
         shot={p.shot ?? `[ screenshot placeholder — ${p.title} ]`}
         descriptionHtml={p.body ?? ''}
       />
