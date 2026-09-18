@@ -6,8 +6,7 @@ WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
 
-# Explicitly allow esbuild build scripts while restricting network concurrency
-RUN pnpm install --frozen-lockfile --network-concurrency=1 --config.onlyBuiltDependencies=esbuild
+RUN pnpm install --frozen-lockfile --network-concurrency=1
 
 COPY . .
 RUN pnpm run build
