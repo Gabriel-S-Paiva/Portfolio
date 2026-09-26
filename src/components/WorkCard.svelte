@@ -5,7 +5,7 @@
     role: string;
     awardBadge?: string | undefined;
     stack: string[];
-    repoUrl: string;
+    repoUrl?: string;
     commit: string;
     shot: string;
     descriptionHtml?: string | undefined;
@@ -55,9 +55,11 @@
   </div>
 
   <div class="flex gap-4 text-sm">
-    <a href={repoUrl} target="_blank" rel="noopener" class="text-[var(--dim)] underline decoration-dotted decoration-[var(--dimmer)] hover:text-[var(--brass)] hover:decoration-[var(--brass)]">
-      GitHub Repository ↗
-    </a>
+    {#if repoUrl}
+      <a href={repoUrl} target="_blank" rel="noopener" class="text-[var(--dim)] underline decoration-dotted decoration-[var(--dimmer)] hover:text-[var(--brass)] hover:decoration-[var(--brass)]">
+        GitHub Repository ↗
+      </a>
+    {/if}
   </div>
   <div class="text-[10.5px] text-[var(--dimmer)] mt-2.5 font-[family-name:var(--font-mono)]">
     hover the card — the preview tilts a little with your cursor

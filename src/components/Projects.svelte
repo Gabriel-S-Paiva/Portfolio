@@ -3,17 +3,17 @@
   import SectionHead from './SectionHead.svelte';
 
   interface Project {
-    id: string;
-    title: string;
-    date: string;
-    role: string;
-    awardBadge?: string;
-    stack: string[];
-    repoUrl: string;
-    commit: string;
-    shot?: string;
-    body?: string;
-  }
+  id: string;
+  title: string;
+  date: string;
+  role: string;
+  awardBadge?: string;
+  stack: string[];
+  repoUrl?: string;
+  commit: string;
+  shot?: string;
+  body?: string;
+}
 
   let { projects = [] }: { projects: Project[] } = $props();
 </script>

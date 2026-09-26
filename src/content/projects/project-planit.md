@@ -7,6 +7,7 @@ stack: ["JavaScript", "HTML5", "Tailwind CSS", "Figma"]
 repoUrl: "https://github.com/Gabriel-S-Paiva/PlanIt"
 commit: 'git commit -m "feat: planit"'
 shot: "[ screenshot placeholder - homepage UI prototype, light/dark mode ]"
+order: 1
 ---
 A client-only travel planner covering flights, hotels, and activities, with a gamification layer designed to drive repeat use. Built with an MV architecture persisting to LocalStorage - no backend.
 

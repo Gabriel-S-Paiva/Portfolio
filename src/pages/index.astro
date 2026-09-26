@@ -20,12 +20,15 @@ function fallbackCommit(prefix: string, title: string) {
 }
 
 const rawProjects = await getCollection('projects');
-const projects = rawProjects.map((entry) => ({
-  ...entry.data,
-  id: entry.id,
-  body: entry.body ?? '',
-  commit: entry.data.commit ?? fallbackCommit('feat', entry.data.title),
-}));
+const projects = rawProjects
+  .map((entry) => ({
+    ...entry.data,
+    id: entry.id,
+    body: entry.body ?? '',
+    commit: entry.data.commit ?? fallbackCommit('feat', entry.data.title),
+    shot: entry.data.shot?.src, // ImageMetadata → plain string
+  }))
+  .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity));
 
 const rawAwards = await getCollection('awards');
 const awards = rawAwards.map((entry) => ({
