@@ -26,7 +26,7 @@ const projects = rawProjects
     id: entry.id,
     body: entry.body ?? '',
     commit: entry.data.commit ?? fallbackCommit('feat', entry.data.title),
-    shot: entry.data.shot?.src, // ImageMetadata → plain string
+    shot: entry.data.shot,
   }))
   .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity));
 
