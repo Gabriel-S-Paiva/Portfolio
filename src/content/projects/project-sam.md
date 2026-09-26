@@ -1,6 +1,6 @@
 ---
-title: "Project SAM — Municipal Support Platform"
-date: "2025 — 2026"
+title: "Project SAM - Municipal Support Platform"
+date: "2025 - 2026"
 role: "Dual-database REST API backend · team project"
 awardBadge: "1st Place Award"
 stack: ["Node.js", "Express", "MySQL", "MongoDB", "Socket.IO", "JWT"]
