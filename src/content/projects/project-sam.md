@@ -6,7 +6,7 @@ awardBadge: "1st Place Award"
 stack: ["Node.js", "Express", "MySQL", "MongoDB", "Socket.IO", "JWT"]
 repoUrl: "https://github.com/Gabriel-S-Paiva/p2-sam-backend"
 commit: 'git commit -m "feat: project sam'
-shot: /assets/projects/sam.webp
+shot: /assets/projects/sam.svg
 order: 3
 ---
 Backend REST API for a municipal management platform (Sistema de Apoio Municipal), handling domain operations, high-frequency logging, and real-time smart locker updates.

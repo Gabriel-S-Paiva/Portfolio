@@ -11,7 +11,6 @@ import Contact from '../components/Contact.svelte';
 import Footer from '../components/Footer.svelte';
 import TerminalDock from '../components/TerminalDock.svelte';
 import GitGraph from '../components/GitGraph.svelte';
-import HoverPreview from '../components/HoverPreview.svelte';
 
 import { getCollection } from 'astro:content';
 
@@ -28,7 +27,7 @@ const projects = rawProjects
     commit: entry.data.commit ?? fallbackCommit('feat', entry.data.title),
     shot: entry.data.shot,
   }))
-  .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity));
+  .sort((a, b) => (b.order ?? Infinity) - (a.order ?? Infinity));
 
 const rawAwards = await getCollection('awards');
 const awards = rawAwards.map((entry) => ({
@@ -52,7 +51,7 @@ const educationList = rawEducation.map((entry) => ({
   <Hero client:load />
   <About />
   <Skills />
-  <Projects {projects}/>
+  <Projects {projects} client:load/>
   <Honors {awards}/>
   <Education {educationList}/>
   <Contact />
@@ -60,5 +59,4 @@ const educationList = rawEducation.map((entry) => ({
 
   <TerminalDock client:load {projects} {awards} {educationList} />
   <GitGraph client:load />
-  <HoverPreview client:load />
 </Layout>
