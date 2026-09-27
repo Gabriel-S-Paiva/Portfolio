@@ -24,7 +24,7 @@ const projects = rawProjects
   .map((entry) => ({
     ...entry.data,
     id: entry.id,
-    body: entry.body ?? '',
+    body: entry.rendered?.html ?? '',
     commit: entry.data.commit ?? fallbackCommit('feat', entry.data.title),
     shot: entry.data.shot,
   }))
@@ -34,7 +34,7 @@ const rawAwards = await getCollection('awards');
 const awards = rawAwards.map((entry) => ({
   ...entry.data,
   id: entry.id,
-  body: entry.body ?? '',
+  body: entry.rendered?.html ?? '',
   commit: entry.data.commit ?? fallbackCommit('award', entry.data.title),
 }));
 
@@ -42,7 +42,7 @@ const rawEducation = await getCollection('education');
 const educationList = rawEducation.map((entry) => ({
   ...entry.data,
   id: entry.id,
-  body: entry.body ?? '',
+  body: entry.rendered?.html ?? '',
   commit: entry.data.commit ?? fallbackCommit('edu', entry.data.degree),
 }));
 ---
