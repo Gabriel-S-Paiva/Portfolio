@@ -2,6 +2,8 @@
   import { onMount } from 'svelte';
   import { skillGroups, slugify } from '../lib/skills';
   import { shortHash } from '../lib/hash';
+  import { fade, fly } from 'svelte/transition';
+  import { quintOut } from 'svelte/easing';
 
   type Branch = 'main' | 'skills' | 'work' | 'honors' | 'education';
   type Entry = { file: string; message: string; content: string };
@@ -178,8 +180,12 @@
     tabindex="-1"
     onclick={(e) => { if (e.target === e.currentTarget) isOpen = false; }}
     class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end justify-center pb-[90px] w-full cursor-default"
+    transition:fade={{ duration: 150 }}
   >
-    <div class="w-[min(680px,92vw)] h-[min(480px,65vh)] bg-[var(--surface-2)] border border-[var(--line)] rounded-xl flex flex-col shadow-2xl overflow-hidden cursor-auto">
+    <div 
+      class="w-[min(680px,92vw)] h-[min(480px,65vh)] bg-[var(--surface-2)] border border-[var(--line)] rounded-xl flex flex-col shadow-2xl overflow-hidden cursor-auto"
+      transition:fly={{ y: 24, duration: 200, easing: quintOut }}
+    >
       <div class="flex justify-between items-center px-4 py-2.5 border-b border-[var(--line)] font-[family-name:var(--font-mono)] text-xs text-[var(--dimmer)]">
         <span>gabrielpaiva/portfolio — terminal · ({currentBranch})</span>
         <button type="button" onclick={() => isOpen = false} class="text-[var(--dim)] hover:text-[var(--text)] cursor-pointer bg-transparent border-none">esc ✕</button>

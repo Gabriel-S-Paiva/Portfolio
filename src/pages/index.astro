@@ -11,6 +11,7 @@ import Contact from '../components/Contact.svelte';
 import Footer from '../components/Footer.svelte';
 import TerminalDock from '../components/TerminalDock.svelte';
 import GitGraph from '../components/GitGraph.svelte';
+import ScrollArrow from '../components/ScrollArrow.svelte';
 
 import { getCollection } from 'astro:content';
 
@@ -59,4 +60,5 @@ const educationList = rawEducation.map((entry) => ({
 
   <TerminalDock client:load {projects} {awards} {educationList} />
   <GitGraph client:load />
+  <ScrollArrow client:load/>
 </Layout>
