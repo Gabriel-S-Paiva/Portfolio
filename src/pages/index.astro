@@ -33,7 +33,7 @@ const rawAwards = await getCollection('awards');
 const awards = rawAwards.map((entry) => ({
   ...entry.data,
   id: entry.id,
-  body: entry.rendered?.html ?? '',
+  body: entry.body ?? '',
   commit: entry.data.commit ?? fallbackCommit('award', entry.data.title),
 }));
 
