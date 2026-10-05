@@ -4,15 +4,16 @@ import { glob } from 'astro/loaders';
 
 const projects = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/projects' }),
-  schema: z.object({
+  schema: ({ image }) => z.object({
     title: z.string(),
     date: z.string(),
     role: z.string(),
     awardBadge: z.string().optional(),
     stack: z.array(z.string()),
-    repoUrl: z.string().url(),
-    commit: z.string().optional(),
+    repoUrl: z.url().optional(),
+    commit: z.string(),
     shot: z.string().optional(),
+    order: z.number().optional(),
   }),
 });
 

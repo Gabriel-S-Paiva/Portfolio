@@ -4,8 +4,8 @@
   import { navLinks } from '../lib/nav-links';
 </script>
 
-<nav class="sticky top-0 z-20 bg-[#0c0e12d9] backdrop-blur-md border-b border-[var(--line)]">
-  <div class="max-w-[900px] mx-auto px-7 h-[60px] flex justify-between items-center">
+<nav class="sticky top-0 z-20 bg-[color-mix(in_srgb,var(--bg)_85%,transparent)] backdrop-blur-md border-b border-[var(--line)]">
+    <div class="max-w-[900px] mx-auto px-7 h-[60px] flex justify-between items-center">
     <div class="font-[family-name:var(--font-mono)] text-[13px] text-[var(--dim)]">
       <b class="text-[var(--text)]">Gabriel Paiva</b> · backend & infra
     </div>

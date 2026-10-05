@@ -11,7 +11,7 @@ import Contact from '../components/Contact.svelte';
 import Footer from '../components/Footer.svelte';
 import TerminalDock from '../components/TerminalDock.svelte';
 import GitGraph from '../components/GitGraph.svelte';
-import HoverPreview from '../components/HoverPreview.svelte';
+import ScrollArrow from '../components/ScrollArrow.svelte';
 
 import { getCollection } from 'astro:content';
 
@@ -20,12 +20,15 @@ function fallbackCommit(prefix: string, title: string) {
 }
 
 const rawProjects = await getCollection('projects');
-const projects = rawProjects.map((entry) => ({
-  ...entry.data,
-  id: entry.id,
-  body: entry.body ?? '',
-  commit: entry.data.commit ?? fallbackCommit('feat', entry.data.title),
-}));
+const projects = rawProjects
+  .map((entry) => ({
+    ...entry.data,
+    id: entry.id,
+    body: entry.rendered?.html ?? '',
+    commit: entry.data.commit ?? fallbackCommit('feat', entry.data.title),
+    shot: entry.data.shot,
+  }))
+  .sort((a, b) => (b.order ?? Infinity) - (a.order ?? Infinity));
 
 const rawAwards = await getCollection('awards');
 const awards = rawAwards.map((entry) => ({
@@ -39,7 +42,7 @@ const rawEducation = await getCollection('education');
 const educationList = rawEducation.map((entry) => ({
   ...entry.data,
   id: entry.id,
-  body: entry.body ?? '',
+  body: entry.rendered?.html ?? '',
   commit: entry.data.commit ?? fallbackCommit('edu', entry.data.degree),
 }));
 ---
@@ -49,7 +52,7 @@ const educationList = rawEducation.map((entry) => ({
   <Hero client:load />
   <About />
   <Skills />
-  <Projects {projects}/>
+  <Projects {projects} client:load/>
   <Honors {awards}/>
   <Education {educationList}/>
   <Contact />
@@ -57,5 +60,5 @@ const educationList = rawEducation.map((entry) => ({
 
   <TerminalDock client:load {projects} {awards} {educationList} />
   <GitGraph client:load />
-  <HoverPreview client:load />
+  <ScrollArrow client:load/>
 </Layout>

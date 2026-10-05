@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount, onDestroy, tick } from 'svelte';
 
   type SubItem = {
     title: HTMLElement | null;
@@ -216,9 +216,14 @@
     resizeTimer = setTimeout(buildGraphs, 200);
   }
 
-  onMount(() => {
+  onMount(async () => {
     reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    buildGraphs();
+    
+    await tick();
+    requestAnimationFrame(() => {
+      buildGraphs();
+    });
+
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
   });

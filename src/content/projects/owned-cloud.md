@@ -6,6 +6,7 @@ stack: ["Go", "SQLite", "SvelteKit 5", "Docker", "Caddy", "GitHub Actions"]
 repoUrl: "https://github.com/Gabriel-S-Paiva/Cloud"
 commit: 'git commit -m "feat: owned cloud"'
 shot: "[ diagram placeholder — chunked upload pipeline / quota reservation flow ]"
+order: 4
 ---
 A self-hosted Dropbox-style file cloud with role-based auth, storage quota enforcement, and granular folder sharing options.
 
