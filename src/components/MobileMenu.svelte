@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { navLinks } from '../lib/nav-links';
+  import { navLinks, cvHref, cvFilename, isCurrent } from '../lib/nav-links';
+
+  let { current = '/' }: { current?: string } = $props();
 
   let open = $state(false);
   let menuBtn: HTMLButtonElement | undefined = $state();
@@ -29,7 +31,7 @@
 <button
   bind:this={menuBtn}
   type="button"
-  class="sm:hidden flex flex-col justify-center items-center gap-[4px] w-11 h-11 -mr-3 cursor-pointer bg-transparent border-none"
+  class="lg:hidden flex flex-col justify-center items-center gap-[4px] w-11 h-11 -mr-3 cursor-pointer bg-transparent border-none"
   aria-label="Open menu"
   aria-expanded={open}
   aria-controls="mobile-menu"
@@ -60,11 +62,18 @@
     {#each navLinks as link}
       <a
         href={link.href}
-        class="text-[var(--text)] no-underline"
+        class="no-underline {isCurrent(link.href, current) ? 'text-[var(--brass)]' : 'text-[var(--text)]'}"
+        aria-current={isCurrent(link.href, current) ? 'page' : undefined}
         onclick={() => (open = false)}
       >
         {link.label}
       </a>
     {/each}
+
+    <a
+      href={cvHref}
+      download={cvFilename}
+      class="mt-4 font-[family-name:var(--font-mono)] text-sm text-[var(--text)] border border-[var(--line)] rounded-full px-5 py-2 no-underline"
+    >Download CV</a>
   </div>
 {/if}

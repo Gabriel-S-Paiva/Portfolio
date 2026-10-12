@@ -34,7 +34,28 @@
     return `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
   }
 
+  function restore(g: SectionGraph, old: SectionGraph) {
+    if (old.initDone) {
+      g.initDone = true;
+      g.initNode?.classList.add('in');
+      if (g.initCaption) g.initCaption.textContent = 'git init';
+    }
+    if (old.mainDone) {
+      g.mainDone = true;
+      g.mainNode.classList.add('in');
+      if (g.mainCaption) g.mainCaption.textContent = g.mainText;
+    }
+    g.subData.forEach((sub, i) => {
+      if (!old.subData[i]?.done) return;
+      sub.done = true;
+      sub.node?.classList.add('in');
+      if (sub.caption) sub.caption.textContent = sub.text;
+    });
+  }
+
   function buildGraphs() {
+    // Rebuilds happen after late layout changes; keep what was already revealed.
+    const previous = new Map(sectionGraphs.map(g => [g.section, g]));
     sectionGraphs = [];
     const sections = Array.from(document.querySelectorAll<HTMLElement>('.gitline'));
 
@@ -122,6 +143,9 @@
         initDone: false,
         subData,
       });
+
+      const old = previous.get(section);
+      if (old) restore(sectionGraphs[sectionGraphs.length - 1], old);
     });
 
     if (reduced) { revealAllImmediately(); return; }
@@ -211,17 +235,52 @@
     }
   }
 
-  function onResize() {
+  function scheduleRebuild(delay = 150) {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(buildGraphs, 200);
+    resizeTimer = setTimeout(buildGraphs, delay);
+  }
+
+  function onResize() { scheduleRebuild(200); }
+
+  // Resolves once every Astro island has hydrated, so we never inject the SVG
+  // into markup that Svelte is about to hydrate (which wipes or mismatches it).
+  function islandsReady(timeoutMs = 3000): Promise<void> {
+    const pending = () => document.querySelector('astro-island[ssr]') !== null;
+    if (!pending()) return Promise.resolve();
+    return new Promise(resolve => {
+      const done = () => { mo.disconnect(); clearTimeout(timer); resolve(); };
+      const mo = new MutationObserver(() => { if (!pending()) done(); });
+      const timer = setTimeout(done, timeoutMs);
+      mo.observe(document.body, { attributes: true, attributeFilter: ['ssr'], subtree: true });
+    });
+  }
+
+  let resizeObserver: ResizeObserver | undefined;
+  let mutationObserver: MutationObserver | undefined;
+
+  function observeSections() {
+    const sections = Array.from(document.querySelectorAll<HTMLElement>('.gitline'));
+
+    // Late layout shifts (images, fonts, hydration) change section height.
+    resizeObserver = new ResizeObserver(() => scheduleRebuild());
+    sections.forEach(sec => resizeObserver!.observe(sec));
+
+    // If anything removes a section's graph SVG, draw it again.
+    mutationObserver = new MutationObserver(() => {
+      if (sections.some(sec => !sec.querySelector(':scope > .graph-svg'))) scheduleRebuild(50);
+    });
+    sections.forEach(sec => mutationObserver!.observe(sec, { childList: true }));
   }
 
   onMount(async () => {
     reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     
     await tick();
+    await islandsReady();
+    await (document.fonts?.ready ?? Promise.resolve());
     requestAnimationFrame(() => {
       buildGraphs();
+      observeSections();
     });
 
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -233,6 +292,8 @@
     window.removeEventListener('scroll', onScroll);
     window.removeEventListener('resize', onResize);
     clearTimeout(resizeTimer);
+    resizeObserver?.disconnect();
+    mutationObserver?.disconnect();
   });
 </script>
 

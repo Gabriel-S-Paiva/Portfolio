@@ -17,34 +17,81 @@
   }: Props = $props();
 
   let cardEl: HTMLDivElement | undefined = $state();
+  let previewEl: HTMLDivElement | undefined = $state();
   let hovering = $state(false);
-  let tiltX = $state(0);
-  let tiltY = $state(0);
-  let mouseX = $state(0);
-  let mouseY = $state(0);
 
   const isImage = /\.(png|jpe?g|webp|avif|gif|svg)$/i.test(shot ?? '');
+
+  // Preview position/tilt live outside Svelte state: they change every frame,
+  // and re-rendering on each mousemove is what made the old version janky.
+  const PREVIEW_W = 280;
+  const OFFSET = 24;
+  const MAX_TILT = 7;
+  let target = { x: 0, y: 0, rx: 0, ry: 0 };
+  let current = { x: 0, y: 0, rx: 0, ry: 0 };
+  let raf = 0;
+  let reduceMotion = false;
+
+  // Move the preview under <body> so no ancestor transform/filter can
+  // become the containing block for `position: fixed`.
+  function portal(node: HTMLElement) {
+    document.body.appendChild(node);
+    return { destroy: () => node.remove() };
+  }
+
+  function place(clientX: number, clientY: number) {
+    const h = previewEl?.offsetHeight ?? 180;
+    let x = clientX + OFFSET;
+    let y = clientY + OFFSET;
+    if (x + PREVIEW_W > window.innerWidth - 12) x = clientX - OFFSET - PREVIEW_W;
+    if (y + h > window.innerHeight - 12) y = window.innerHeight - 12 - h;
+    target.x = Math.max(12, x);
+    target.y = Math.max(12, y);
+  }
+
+  function tick() {
+    const k = reduceMotion ? 1 : 0.2;
+    current.x += (target.x - current.x) * k;
+    current.y += (target.y - current.y) * k;
+    current.rx += (target.rx - current.rx) * k;
+    current.ry += (target.ry - current.ry) * k;
+    if (previewEl) {
+      previewEl.style.transform = `translate3d(${current.x}px, ${current.y}px, 0)`;
+      const inner = previewEl.firstElementChild as HTMLElement | null;
+      if (inner) inner.style.setProperty('--tilt', `rotateX(${current.rx}deg) rotateY(${current.ry}deg)`);
+    }
+    raf = requestAnimationFrame(tick);
+  }
 
   function handleMove(e: MouseEvent) {
     if (!cardEl) return;
     const rect = cardEl.getBoundingClientRect();
     const px = (e.clientX - rect.left) / rect.width;
     const py = (e.clientY - rect.top) / rect.height;
-
-    const MAX_TILT = 4;
-    tiltY = (px - 0.5) * MAX_TILT * 2;
-    tiltX = (0.5 - py) * MAX_TILT * 2;
-
-    mouseX = e.clientX;
-    mouseY = e.clientY;
+    target.ry = reduceMotion ? 0 : (px - 0.5) * MAX_TILT * 2;
+    target.rx = reduceMotion ? 0 : (0.5 - py) * MAX_TILT * 2;
+    place(e.clientX, e.clientY);
   }
 
-  function handleEnter() { hovering = true; }
+  function handleEnter(e: MouseEvent) {
+    reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    place(e.clientX, e.clientY);
+    // Start at the cursor so the preview does not fly in from the last card.
+    current = { ...target };
+    hovering = true;
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(tick);
+  }
+
   function handleLeave() {
     hovering = false;
-    tiltX = 0;
-    tiltY = 0;
+    target.rx = 0;
+    target.ry = 0;
+    // Keep the loop alive just long enough for the fade-out to finish.
+    setTimeout(() => { if (!hovering) cancelAnimationFrame(raf); }, 250);
   }
+
+  $effect(() => () => cancelAnimationFrame(raf));
 </script>
 
 <div
@@ -95,21 +142,48 @@
     {/if}
   </div>
   <div class="text-[10.5px] text-[var(--dimmer)] mt-2.5 font-[family-name:var(--font-mono)]">
-    hover the card — the preview tilts a little with your cursor
+    hover the card to preview the project
   </div>
 </div>
 
-{#if hovering && shot}
+{#if shot}
   <div
-    class="fixed z-50 pointer-events-none rounded-lg border border-[var(--line)] shadow-xl overflow-hidden bg-[var(--surface)]"
-    style="left: {mouseX + 20}px; top: {mouseY + 20}px; width: 260px;"
+    use:portal
+    bind:this={previewEl}
+    aria-hidden="true"
+    class="work-preview fixed top-0 left-0 z-50 pointer-events-none"
+    class:is-visible={hovering}
+    style="width: {PREVIEW_W}px; perspective: 800px;"
   >
-    {#if isImage}
-      <img src={shot} alt="{title} preview" class="w-full h-auto block" loading="lazy" />
-    {:else}
-      <div class="text-[var(--dim)] text-[11px] font-[family-name:var(--font-mono)] p-3">
-        {shot}
-      </div>
-    {/if}
+    <div class="work-preview-inner rounded-lg border border-[var(--line)] overflow-hidden bg-[var(--surface)] aspect-[16/10]">
+      {#if isImage}
+        <img src={shot} alt="" class="w-full h-full object-cover object-top block" />
+      {:else}
+        <div class="h-full text-[var(--dim)] text-[11px] font-[family-name:var(--font-mono)] p-3 overflow-hidden">
+          {shot}
+        </div>
+      {/if}
+    </div>
   </div>
 {/if}
+
+<style>
+  .work-preview { opacity: 0; transition: opacity 0.2s ease; will-change: transform, opacity; }
+  .work-preview.is-visible { opacity: 1; }
+  .work-preview-inner {
+    transform: var(--tilt, none);
+    scale: 0.94;
+    transition: scale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 18px 40px -12px color-mix(in srgb, var(--brass) 28%, rgb(0 0 0 / 0.55));
+    transform-origin: center;
+  }
+  .work-preview.is-visible .work-preview-inner {
+    scale: 1;
+  }
+  :global(.project-card) { transition: border-color 0.2s ease; }
+  :global(.project-card:hover) { border-color: var(--brass); }
+  @media (hover: none) { .work-preview { display: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .work-preview, .work-preview-inner { transition: none; }
+  }
+</style>

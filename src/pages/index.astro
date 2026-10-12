@@ -48,7 +48,7 @@ const educationList = rawEducation.map((entry) => ({
 ---
 
 <Layout title="Gabriel Paiva - Backend & Self-Hosted Infrastructure">
-  <Nav client:load />
+  <Nav client:load current={Astro.url.pathname} />
   <Hero client:load />
   <About />
   <Skills />
