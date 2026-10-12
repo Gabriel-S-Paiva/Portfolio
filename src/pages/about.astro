@@ -1,5 +1,107 @@
 ---
-import EmptyPage from '../components/EmptyPage.astro';
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.svelte';
+import Footer from '../components/Footer.svelte';
+import { getCollection } from 'astro:content';
+import { cvHref, cvFilename } from '../lib/nav-links';
+
+const awards = (await getCollection('awards')).sort((a, b) => b.data.order - a.data.order);
+const education = (await getCollection('education')).sort((a, b) => b.data.order - a.data.order);
+
+// Source dates use an em-dash; the site uses plain hyphens.
+const plain = (s: string) => s.replace(/\s*[—–]\s*/g, ' - ');
+
+const glance = [
+  { label: 'Studying', value: 'B.Sc. in Web Information Systems and Technologies, ESMAD / Politécnico do Porto' },
+  { label: 'Average', value: '18.08 / 20' },
+  { label: 'Focus', value: 'Backend systems, REST APIs, self-hosted infrastructure' },
+  { label: 'Languages', value: 'Portuguese (native), English (C1)' },
+];
+
+const links = [
+  { label: 'Email', href: 'mailto:mr.sousapaiva@gmail.com', text: 'mr.sousapaiva@gmail.com' },
+  { label: 'GitHub', href: 'https://github.com/Gabriel-S-Paiva', text: 'Gabriel-S-Paiva' },
+  { label: 'LinkedIn', href: 'https://linkedin.com/in/gabriel-s-paiva', text: 'gabriel-s-paiva' },
+];
+
+const link = 'text-[var(--text)] underline decoration-[var(--dimmer)] underline-offset-4 hover:text-[var(--brass)] hover:decoration-[var(--brass)] transition-colors';
 ---
 
-<EmptyPage title="About" heading="About" />
+<Layout title="About | Gabriel Paiva" description="Third-year Web Information Systems and Technologies student at ESMAD / Politécnico do Porto, focused on backend systems, REST APIs and self-hosted infrastructure.">
+  <Nav client:load current={Astro.url.pathname} />
+
+  <main class="max-w-[900px] mx-auto px-7 pt-20 pb-10">
+    <header class="max-w-[680px]">
+      <h1 class="font-[family-name:var(--font-display)] text-4xl md:text-5xl tracking-tight leading-[1.1]">Hi, I'm Gabriel.</h1>
+      <p class="mt-5 text-lg text-[var(--dim)] leading-relaxed">
+        I'm a third-year Web Information Systems and Technologies student at ESMAD, focused on backend systems, REST APIs and self-hosted infrastructure.
+      </p>
+    </header>
+
+    <div class="mt-14 grid gap-12 md:grid-cols-[minmax(0,1fr)_280px]">
+      <div class="space-y-5 text-[16px] text-[var(--dim)] leading-relaxed max-w-[62ch]">
+        <p>
+          I came to web development through the advanced web design and programming course at MasterD (2023-2025, graded 20/20), then moved on to ESMAD. I started on <strong class="text-[var(--text)] font-semibold">Node, Express and Vue</strong>, and picked up <strong class="text-[var(--text)] font-semibold">Go and SvelteKit</strong> while building Owned Cloud.
+        </p>
+        <p>
+          What I enjoy most is owning a system end to end: the schema, the API, the auth model, the deployment and the CI that ships it. Owned Cloud, my self-hosted family cloud storage, runs on a repurposed laptop at home with Docker Compose and Caddy, and so does this site.
+        </p>
+        <p>
+          I also like to compete. I have four first places from hackathons, project awards and a programming contest, and I was an invited speaker at an ESMAD seminar on academic success in group work.
+        </p>
+        <p>
+          Before software I trained as a professional musician (wind and percussion, 2020-2023), and I have been playing since 2015.
+        </p>
+      </div>
+
+      <aside aria-label="At a glance">
+        <dl class="space-y-4 text-sm">
+          {glance.map((g) => (
+            <div>
+              <dt class="font-[family-name:var(--font-mono)] text-xs text-[var(--dim)]">{g.label}</dt>
+              <dd class="mt-1 text-[var(--text)] leading-snug">{g.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </aside>
+    </div>
+
+    <div class="mt-20 grid gap-14 md:grid-cols-2 border-t border-[var(--line)] pt-14">
+      <section aria-labelledby="awards-title">
+        <h2 id="awards-title" class="font-[family-name:var(--font-display)] text-2xl">Awards</h2>
+        <ul class="mt-6 space-y-5">
+          {awards.map((a) => (
+            <li>
+              <div class="text-[var(--text)] leading-snug">{plain(a.data.title)}</div>
+              <div class="mt-1 text-sm text-[var(--dim)]">{plain(a.data.issuer)}, {a.data.date}</div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section aria-labelledby="edu-title">
+        <h2 id="edu-title" class="font-[family-name:var(--font-display)] text-2xl">Education</h2>
+        <ul class="mt-6 space-y-5">
+          {education.map((e) => (
+            <li>
+              <div class="text-[var(--text)] leading-snug">{plain(e.data.degree)}</div>
+              <div class="mt-1 text-sm text-[var(--dim)]">{plain(e.data.school)}, {plain(e.data.dates)}</div>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
+
+    <section aria-labelledby="contact-title" class="mt-20 border-t border-[var(--line)] pt-14">
+      <h2 id="contact-title" class="font-[family-name:var(--font-display)] text-2xl">Get in touch</h2>
+      <ul class="mt-6 space-y-2 text-[15px] text-[var(--dim)]">
+        {links.map((l) => (
+          <li><span class="inline-block w-24 font-[family-name:var(--font-mono)] text-xs">{l.label}</span><a href={l.href} class={link}>{l.text}</a></li>
+        ))}
+        <li><span class="inline-block w-24 font-[family-name:var(--font-mono)] text-xs">Résumé</span><a href={cvHref} download={cvFilename} class={link}>Download CV (PDF)</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>

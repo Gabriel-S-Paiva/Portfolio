@@ -1,6 +1,6 @@
 ---
 title: "Owned Cloud"
-date: "In progress · target v1.0.0"
+date: "v1.0.0 · self-hosted"
 role: "Self-hosted family cloud storage platform · solo project"
 stack: ["Go", "SQLite", "SvelteKit 5", "Docker", "Caddy", "GitHub Actions"]
 repoUrl: "https://github.com/Gabriel-S-Paiva/Cloud"

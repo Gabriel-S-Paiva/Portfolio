@@ -20,6 +20,7 @@
   let previewEl: HTMLDivElement | undefined = $state();
   let hovering = $state(false);
 
+  const titleId = `project-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
   const isImage = /\.(png|jpe?g|webp|avif|gif|svg)$/i.test(shot ?? '');
 
   // Preview position/tilt live outside Svelte state: they change every frame,
@@ -103,11 +104,11 @@
   data-commit={commit}
   data-shot={shot}
   role="group"
-  aria-labelledby="project-title-{commit}"
+  aria-labelledby="{titleId}"
 >
   <div class="commit-msg commit-branch"></div>
   <div class="flex justify-between items-baseline mb-2.5 flex-wrap gap-2">
-    <h3 class="node-anchor text-[19px] text-[var(--text)] font-semibold">{title}</h3>
+    <h3 id={titleId} class="node-anchor text-[19px] text-[var(--text)] font-semibold">{title}</h3>
     <span class="font-[family-name:var(--font-mono)] text-xs text-[var(--dimmer)]">{date}</span>
   </div>
 
@@ -121,7 +122,7 @@
   </div>
 
   {#if descriptionHtml}
-    <div class="text-[var(--dim)] text-[14.5px] mb-4 [&_ul]:list-disc [&_ul]:ml-4 [&_li]:mb-1">
+    <div class="text-[var(--dim)] text-[14.5px] mb-4 [&_p]:mb-3 [&_ul]:list-disc [&_ul]:ml-4 [&_li]:mb-1">
       {@html descriptionHtml}
     </div>
   {/if}
@@ -157,7 +158,7 @@
   >
     <div class="work-preview-inner rounded-lg border border-[var(--line)] overflow-hidden bg-[var(--surface)] aspect-[16/10]">
       {#if isImage}
-        <img src={shot} alt="" class="w-full h-full object-cover object-top block" />
+        <img src={shot} alt="" class="w-full h-full object-cover object-center block" />
       {:else}
         <div class="h-full text-[var(--dim)] text-[11px] font-[family-name:var(--font-mono)] p-3 overflow-hidden">
           {shot}
