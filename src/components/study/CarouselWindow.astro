@@ -1,0 +1,118 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import Window from './Window.astro';
+
+// A window holding several images, one at a time. Scrolls natively (swipe, trackpad,
+// keyboard) with snap points; the buttons are an enhancement that appears with JS.
+interface Slide {
+  src: ImageMetadata;
+  alt: string;
+  /** Short name shown in the status line, e.g. a persona's first name. */
+  label: string;
+}
+interface Props {
+  slides: Slide[];
+  title?: string;
+  caption?: string;
+}
+const { slides, title = 'gallery', caption } = Astro.props;
+---
+
+<Window title={title} caption={caption}>
+  <div class="carousel" data-carousel role="group" aria-roledescription="carousel" aria-label={title}>
+    <div class="controls" hidden>
+      <button type="button" data-prev aria-label="Previous">←</button>
+      <span class="status" data-status aria-live="polite">{slides[0].label} (1 of {slides.length})</span>
+      <button type="button" data-next aria-label="Next">→</button>
+    </div>
+    <div class="track" tabindex="0">
+      {slides.map((s, i) => (
+        <div class="slide" role="group" aria-roledescription="slide" aria-label={`${i + 1} of ${slides.length}: ${s.label}`} data-label={s.label}>
+          <Image
+            src={s.src}
+            alt={s.alt}
+            widths={[480, 800, 1200]}
+            sizes="(min-width: 900px) 844px, 100vw"
+            loading={i === 0 ? 'eager' : 'lazy'}
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+</Window>
+
+<style>
+  .track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line) transparent;
+  }
+  .track:focus-visible { outline: 2px solid var(--brass); outline-offset: -2px; }
+  .slide { flex: 0 0 100%; scroll-snap-align: start; min-width: 0; }
+  .slide :global(img) { display: block; width: 100%; height: auto; }
+  .controls {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: .5rem 1rem; border-bottom: 1px solid var(--line);
+    font-family: var(--font-mono); font-size: 12px; color: var(--dim);
+    /* Stays in view while any part of a tall slide is on screen (site nav is 60px). */
+    position: sticky; top: 60px; z-index: 1;
+    background: var(--surface-2);
+  }
+  .controls[hidden] { display: none; }
+  .controls button {
+    min-width: 44px; min-height: 36px; cursor: pointer;
+    background: var(--surface); color: var(--text);
+    border: 1px solid var(--line); border-radius: 999px;
+    transition: border-color .2s ease, color .2s ease;
+  }
+  .controls button:hover:not(:disabled) { border-color: var(--brass); color: var(--brass); }
+  .controls button:disabled { opacity: .4; cursor: default; }
+  .controls button:active:not(:disabled) { transform: scale(.96); }
+</style>
+
+<script>
+  function init(root: HTMLElement) {
+    const track = root.querySelector<HTMLElement>('.track')!;
+    const controls = root.querySelector<HTMLElement>('.controls')!;
+    const prev = root.querySelector<HTMLButtonElement>('[data-prev]')!;
+    const next = root.querySelector<HTMLButtonElement>('[data-next]')!;
+    const status = root.querySelector<HTMLElement>('[data-status]')!;
+    const slides = Array.from(track.children) as HTMLElement[];
+    let index = 0;
+
+    const update = () => {
+      status.textContent = `${slides[index].dataset.label} (${index + 1} of ${slides.length})`;
+      prev.disabled = index === 0;
+      next.disabled = index === slides.length - 1;
+    };
+    const go = (i: number) => {
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      track.scrollTo({ left: i * track.clientWidth, behavior: reduce ? 'auto' : 'smooth' });
+    };
+
+    controls.hidden = false;
+    prev.addEventListener('click', () => go(Math.max(0, index - 1)));
+    next.addEventListener('click', () => go(Math.min(slides.length - 1, index + 1)));
+    track.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(Math.max(0, index - 1)); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(Math.min(slides.length - 1, index + 1)); }
+    });
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) { index = slides.indexOf(e.target as HTMLElement); update(); }
+        }
+      },
+      { root: track, threshold: 0.6 },
+    );
+    slides.forEach((s) => io.observe(s));
+    update();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-carousel]').forEach(init);
+</script>

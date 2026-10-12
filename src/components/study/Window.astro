@@ -23,7 +23,8 @@ const { title, meta, caption } = Astro.props;
     background: var(--surface-2);
     border: 1px solid var(--line);
     border-radius: 12px;
-    overflow: hidden;
+    /* clip, not hidden: hidden makes this a scroll container and breaks sticky children */
+    overflow: clip;
     box-shadow: 0 14px 32px -24px rgb(0 0 0 / 0.35);
   }
   .window-bar {

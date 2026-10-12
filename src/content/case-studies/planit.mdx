@@ -7,8 +7,15 @@ draft: true
 ---
 import ShotWindow from '../../components/study/ShotWindow.astro';
 import CodeWindow from '../../components/study/CodeWindow.astro';
+import CarouselWindow from '../../components/study/CarouselWindow.astro';
+import DocumentCard from '../../components/study/DocumentCard.astro';
+import manualCover from '../../assets/case-studies/planit/manual-cover.png';
 import home from '../../assets/case-studies/planit/home-desktop.png';
-import persona from '../../assets/case-studies/planit/persona-ines.png';
+import ines from '../../assets/case-studies/planit/persona-ines.png';
+import rita from '../../assets/case-studies/planit/persona-rita.png';
+import sara from '../../assets/case-studies/planit/persona-sara.png';
+import miguel from '../../assets/case-studies/planit/persona-miguel.png';
+import joao from '../../assets/case-studies/planit/persona-joao.png';
 import hexad from '../../assets/case-studies/planit/hexad-profile.svg';
 import rewards from '../../assets/case-studies/planit/rewards.png';
 import wireframe from '../../assets/case-studies/planit/wireframe-mobile.svg';
@@ -39,7 +46,17 @@ PlanIt is a travel planner for flights, hotels and activities, built for ESMAD i
 
 The gamification started with people, not mechanics. There are five personas, each profiled with the HEXAD player types, so the rewards could be checked against who would actually use them.
 
-<ShotWindow src={persona} alt="Persona card for Inês Oliveira with goals, motivations, frustrations, personality and a HEXAD radar chart" title="figma / personas / ines" caption="One of the five personas. Inês is a freelance graphic designer who travels for art and culture, and her HEXAD profile leads with Free Spirit." />
+<CarouselWindow
+  title="figma / personas"
+  caption="The five personas, each with goals, frustrations and a HEXAD profile. Swipe or use the arrows. Text in the cards is Portuguese."
+  slides={[
+    { src: ines, label: 'Inês', alt: 'Persona card for Inês Oliveira, a freelance graphic designer, with goals, motivations, frustrations, personality and a HEXAD radar chart' },
+    { src: rita, label: 'Rita', alt: 'Persona card for Rita with goals, motivations, frustrations, personality and a HEXAD radar chart' },
+    { src: sara, label: 'Sara', alt: 'Persona card for Sara with goals, motivations, frustrations, personality and a HEXAD radar chart' },
+    { src: miguel, label: 'Miguel', alt: 'Persona card for Miguel with goals, motivations, frustrations, personality and a HEXAD radar chart' },
+    { src: joao, label: 'João', alt: 'Persona card for João with goals, motivations, frustrations, personality and a HEXAD radar chart' },
+  ]}
+/>
 
 Averaged across all five, Free Spirit (21%) and Philanthropist (20.4%) lead and Disruptor is lowest (9.2%).
 
@@ -49,7 +66,7 @@ Averaged across all five, Free Spirit (21%) and Philanthropist (20.4%) lead and 
 
 The gamification layer is RewardIt, a points and levels system tied to bookings. Five levels, from Explorador to Embaixador, unlock benefits as points accumulate. Points come from spending (one point per euro on individual bookings, more on travel packages), with bonuses for booking lodging, transport and insurance together, and for inviting friends.
 
-<ShotWindow src={rewards} alt="RewardIt page showing the five loyalty levels and how points are earned" title="figma / desktop prototype / rewards" aspect="4 / 5" focus="top" caption="The RewardIt page in the desktop prototype." />
+<ShotWindow src={rewards} alt="RewardIt page showing the five loyalty levels and how points are earned" title="figma / desktop prototype / rewards" caption="The RewardIt page content from the desktop prototype. Text in the design is Portuguese." />
 
 ## From wireframe to brand
 
@@ -73,6 +90,20 @@ The itinerary builder is a small recursive function that takes one list of fligh
 
 The number of combinations grows quickly with the number of legs. That is fine for a seeded dataset in the browser, but it is the first thing I would change with real flight data.
 
+## The manual
+
+The full manual for the project is available to read.
+
+<DocumentCard
+  cover={manualCover}
+  coverAlt="Cover of the PlanIt manual: a boarding pass in PlanIt teal with the PlanIt logo, ESMAD and TSIW, and the three team members listed as passengers"
+  title="PlanIt identity manual"
+  description="The complete manual for the PlanIt project at ESMAD, TSIW."
+  href="/planit_manual.pdf"
+  pages={34}
+/>
+
 ## Links
 
 - [PlanIt repository](https://github.com/Gabriel-S-Paiva/PlanIt)
+- [PlanIt deploy](https://projeto1-two-azure.vercel.app/)
