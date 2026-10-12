@@ -1,0 +1,42 @@
+---
+// Base chrome for case-study "windows": same look as the terminal dock.
+interface Props {
+  title: string;
+  meta?: string;
+  caption?: string;
+}
+const { title, meta, caption } = Astro.props;
+---
+
+<figure class="window">
+  <div class="window-bar">
+    <span class="window-title">{title}</span>
+    {meta && <span class="window-meta">{meta}</span>}
+  </div>
+  <div class="window-body"><slot /></div>
+  {caption && <figcaption class="window-caption">{caption}</figcaption>}
+</figure>
+
+<style>
+  .window {
+    margin-block: 2rem;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 14px 32px -24px rgb(0 0 0 / 0.35);
+  }
+  .window-bar {
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+    padding: .625rem 1rem;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--font-mono); font-size: 12px; color: var(--dim);
+  }
+  .window-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .window-meta { white-space: nowrap; }
+  .window-body { min-width: 0; }
+  .window-caption {
+    padding: .625rem 1rem; border-top: 1px solid var(--line);
+    font-size: 13px; line-height: 1.5; color: var(--dim);
+  }
+</style>

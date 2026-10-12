@@ -1,5 +1,82 @@
 ---
-import EmptyPage from '../../components/EmptyPage.astro';
+import Layout from '../../layouts/Layout.astro';
+import Nav from '../../components/Nav.svelte';
+import Footer from '../../components/Footer.svelte';
+import { getCollection, getEntry } from 'astro:content';
+
+const studies = (await getCollection('caseStudies', (e) => import.meta.env.DEV || !e.data.draft))
+  .sort((a, b) => b.data.order - a.data.order);
+const studyCards = await Promise.all(
+  studies.map(async (s) => ({ study: s, project: (await getEntry('projects', s.data.project))! })),
+);
+
+const repos = await getCollection('repos');
+const groups = [
+  { kind: 'solo', label: 'Solo projects' },
+  { kind: 'hackathon', label: 'Hackathon' },
+  { kind: 'team', label: 'Team projects' },
+  { kind: 'course', label: 'Coursework' },
+] as const;
 ---
 
-<EmptyPage title="Work" heading="Work" />
+<Layout title="Showcase | Gabriel Paiva" description="Case studies and public repositories by Gabriel Paiva.">
+  <Nav client:load current={Astro.url.pathname} />
+
+  <main class="max-w-[900px] mx-auto px-7 pt-20 pb-10">
+    <header class="max-w-[680px]">
+      <h1 class="font-[family-name:var(--font-display)] text-4xl md:text-5xl tracking-tight leading-[1.1]">Showcase</h1>
+      <p class="mt-5 text-lg text-[var(--dim)] leading-relaxed">Case studies for the work I'm proudest of, and every public repository below.</p>
+    </header>
+
+    {studyCards.length > 0 && (
+      <section aria-labelledby="studies-title" class="mt-14">
+        <h2 id="studies-title" class="font-[family-name:var(--font-display)] text-2xl">Case studies</h2>
+        <ul class="mt-6 grid gap-5 md:grid-cols-2">
+          {studyCards.map(({ study, project }) => (
+            <li>
+              <a href={`/showcase/${study.id}`} class="block h-full bg-[var(--surface)] border border-[var(--line)] rounded-xl p-6 no-underline transition-colors hover:border-[var(--brass)]">
+                <h3 class="text-[19px] font-semibold text-[var(--text)]">{study.data.title}</h3>
+                <p class="mt-1.5 text-xs text-[var(--brass)]">{project.data.role}</p>
+                <p class="mt-3 text-[14.5px] text-[var(--dim)] leading-relaxed">{study.data.summary}</p>
+                <span class="mt-4 inline-block font-[family-name:var(--font-mono)] text-xs text-[var(--dim)]">Read case study →</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <section aria-labelledby="repos-title" class="mt-16 border-t border-[var(--line)] pt-14">
+      <h2 id="repos-title" class="font-[family-name:var(--font-display)] text-2xl">All repositories</h2>
+
+      {groups.map((g) => {
+        const items = repos
+          .filter((r) => r.data.kind === g.kind)
+          .sort((a, b) => b.data.year.localeCompare(a.data.year));
+        return items.length > 0 && (
+          <div class="mt-10">
+            <h3 class="font-[family-name:var(--font-mono)] text-xs text-[var(--dim)]">{g.label}</h3>
+            <ul class="mt-4 grid gap-4 md:grid-cols-2">
+              {items.map((r) => (
+                <li class="bg-[var(--surface)] border border-[var(--line)] rounded-xl p-5 flex flex-col">
+                  <a href={r.data.url} target="_blank" rel="noopener" class="font-[family-name:var(--font-mono)] text-sm text-[var(--text)] no-underline hover:text-[var(--brass)] transition-colors">
+                    {r.data.name} ↗
+                  </a>
+                  <p class="mt-2 text-[14px] text-[var(--dim)] leading-relaxed">{r.data.description}</p>
+                  <p class="mt-3 font-[family-name:var(--font-mono)] text-xs text-[var(--dim)]">
+                    {r.data.language}, {r.data.year}{r.data.archived ? ', archived' : ''}
+                  </p>
+                  {r.data.study && (
+                    <a href={`/showcase/${r.data.study}`} class="mt-2 text-xs text-[var(--brass)] no-underline hover:underline">Read the case study →</a>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })}
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
