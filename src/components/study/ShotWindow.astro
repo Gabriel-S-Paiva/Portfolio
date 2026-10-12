@@ -11,8 +11,10 @@ interface Props {
   caption?: string;
   /** CSS aspect-ratio, e.g. "16 / 10". Omit to keep the image's own ratio. */
   aspect?: string;
+  /** CSS object-position used when `aspect` crops the image, e.g. "top". Defaults to center. */
+  focus?: string;
 }
-const { src, alt, title = 'preview', caption, aspect } = Astro.props;
+const { src, alt, title = 'preview', caption, aspect, focus = 'center' } = Astro.props;
 ---
 
 <Window title={title} caption={caption}>
@@ -22,7 +24,7 @@ const { src, alt, title = 'preview', caption, aspect } = Astro.props;
     widths={[480, 800, 1200]}
     sizes="(min-width: 900px) 844px, 100vw"
     class="shot"
-    style={aspect ? `aspect-ratio: ${aspect}; object-fit: cover;` : undefined}
+    style={aspect ? `aspect-ratio: ${aspect}; object-fit: cover; object-position: ${focus};` : undefined}
   />
 </Window>
 

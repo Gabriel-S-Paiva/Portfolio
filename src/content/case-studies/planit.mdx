@@ -5,30 +5,74 @@ project: "project-planit"
 order: 1
 draft: true
 ---
+import ShotWindow from '../../components/study/ShotWindow.astro';
+import CodeWindow from '../../components/study/CodeWindow.astro';
+import home from '../../assets/case-studies/planit/home-desktop.png';
+import persona from '../../assets/case-studies/planit/persona-ines.png';
+import hexad from '../../assets/case-studies/planit/hexad-profile.svg';
+import rewards from '../../assets/case-studies/planit/rewards.png';
+import wireframe from '../../assets/case-studies/planit/wireframe-mobile.svg';
+import logo from '../../assets/case-studies/planit/logo.svg';
+// Code excerpts live in files and are imported raw: MDX strips indentation from multi-line attributes.
+import combinar from '../../assets/case-studies/planit/code/combinar.js?raw';
+import tripsMulti from '../../assets/case-studies/planit/code/get-trips-multi.js?raw';
 
 {/*
-  DRAFT. Facts below come from src/content/projects/project-planit.md only.
-  TODO (Gabi): pick images from the Figma export PDF, put them in
-  src/assets/case-studies/planit/, and add <ShotWindow /> blocks where marked.
-  Confirm team size and anything you want expanded before setting draft: false.
+  DRAFT. Text is limited to facts from src/content/projects/project-planit.md, the Figma file
+  (P2 - WebPI) and the PlanIt repo. Figma text is Portuguese; captions here are English.
+  Set draft: false in the frontmatter when approved.
 */}
 
 ## What it is
 
-PlanIt plans trips across flights, hotels and activities. It has no backend: the app follows an MV architecture and persists to LocalStorage, so the interesting work is in the data model and in the design.
+PlanIt is a travel planner for flights, hotels and activities, built for ESMAD in 2024/25 and named ESMAD Best Project that year. It has no backend: the app follows an MV architecture and persists everything to LocalStorage, so the interesting work is in the data model and in the design.
 
-It won ESMAD Best Project 2024/25.
+<ShotWindow src={home} alt="PlanIt desktop home screen with the search form for origin, destination, dates and tourism type" title="figma / desktop prototype / home" caption="The desktop prototype home screen. Text in the design is Portuguese." />
 
-## My part
+## What I did
 
-- **Model layer.** Core data logic, the seeded datasets (airports, hotels, activities, flights) and `ModelHelpers.js`.
+- **Model layer.** The core data logic, the seeded datasets (airports, hotels, activities, flights) and `ModelHelpers.js`.
 - **Gamification design.** A system built on the HEXAD player-type framework and Werbach's 6D methodology, backed by five researched personas.
 - **UX research and design deliverables.** The competitor moodboard, wireframes and the brand identity (logo and color system).
 
-## Gamification
+## Designing for five kinds of traveller
 
-{/* TODO: ShotWindow with the personas / HEXAD mapping from the Figma export */}
+The gamification started with people, not mechanics. There are five personas, each profiled with the HEXAD player types, so the rewards could be checked against who would actually use them.
 
-## Design process
+<ShotWindow src={persona} alt="Persona card for Inês Oliveira with goals, motivations, frustrations, personality and a HEXAD radar chart" title="figma / personas / ines" caption="One of the five personas. Inês is a freelance graphic designer who travels for art and culture, and her HEXAD profile leads with Free Spirit." />
 
-{/* TODO: ShotWindow for moodboard, wireframes, brand identity */}
+Averaged across all five, Free Spirit (21%) and Philanthropist (20.4%) lead and Disruptor is lowest (9.2%).
+
+<ShotWindow src={hexad} alt="Hexagonal HEXAD radar chart for the average persona profile with the percentage per player type" title="figma / personas / hexad average" caption="The average HEXAD profile across the five personas." />
+
+## RewardIt
+
+The gamification layer is RewardIt, a points and levels system tied to bookings. Five levels, from Explorador to Embaixador, unlock benefits as points accumulate. Points come from spending (one point per euro on individual bookings, more on travel packages), with bonuses for booking lodging, transport and insurance together, and for inviting friends.
+
+<ShotWindow src={rewards} alt="RewardIt page showing the five loyalty levels and how points are earned" title="figma / desktop prototype / rewards" aspect="4 / 5" focus="top" caption="The RewardIt page in the desktop prototype." />
+
+## From wireframe to brand
+
+The wireframes fixed the structure first: a search form on top, a grid of trip cards below, and the same layout down to mobile. Visual design came after.
+
+<ShotWindow src={wireframe} alt="Mobile wireframe with a header, search form, trip card grid and footer in grey blocks" title="figma / wireframing / mobile" aspect="4 / 5" focus="top" caption="Mobile wireframe, before any visual design." />
+
+I also worked on the brand identity: the logo and the color system the prototype uses.
+
+<ShotWindow src={logo} alt="PlanIt logo" title="figma / logo / final" caption="The final PlanIt logo, shown with its construction grid." />
+
+## The data layer
+
+With no backend, the Model layer is the whole data story. Multi-destination search shows it best: given a list of cities, `getTripsMulti` collects the flights for each leg, builds every possible itinerary and keeps only the ones where each flight departs after the previous one lands.
+
+The itinerary builder is a small recursive function that takes one list of flights per leg and returns every combination (a cartesian product).
+
+<CodeWindow file="js/models/ModelHelpers.js" lang="js" href="https://github.com/Gabriel-S-Paiva/PlanIt/blob/64b87967a03733e1d5fcbb906c220e03fb6651ba/js/models/ModelHelpers.js#L158-L162" caption="combinar: one flight chosen from each leg, in every possible way." code={combinar} />
+
+<CodeWindow file="js/models/FlightModel.js" lang="js" href="https://github.com/Gabriel-S-Paiva/PlanIt/blob/64b87967a03733e1d5fcbb906c220e03fb6651ba/js/models/FlightModel.js#L677-L734" caption="Excerpt of getTripsMulti: gather flights per leg, combine them, then drop itineraries that break the date rules. Comments are in Portuguese, as in the repo." code={tripsMulti} />
+
+The number of combinations grows quickly with the number of legs. That is fine for a seeded dataset in the browser, but it is the first thing I would change with real flight data.
+
+## Links
+
+- [PlanIt repository](https://github.com/Gabriel-S-Paiva/PlanIt)
