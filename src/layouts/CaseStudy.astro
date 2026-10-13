@@ -12,6 +12,7 @@ interface Props {
     awardBadge?: string;
     stack: string[];
     repoUrl?: string;
+    shot?: string;
   };
 }
 const { title, summary, project } = Astro.props;
@@ -44,6 +45,12 @@ const { title, summary, project } = Astro.props;
         <a href={project.repoUrl} target="_blank" rel="noopener" class="mt-5 inline-block text-sm text-[var(--dim)] underline decoration-dotted decoration-[var(--dimmer)] hover:text-[var(--brass)] hover:decoration-[var(--brass)]">GitHub Repository ↗</a>
       )}
     </header>
+
+    {project.shot && (
+      <figure class="mt-10 max-w-[844px] overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--surface)]">
+        <img src={project.shot} alt={`${title} project cover`} width="1920" height="960" loading="eager" class="block w-full h-auto" />
+      </figure>
+    )}
 
     <article class="study mt-12 max-w-[844px]">
       <slot />

@@ -8,7 +8,7 @@
   const pill = "font-[family-name:var(--font-mono)] text-xs text-[var(--dim)] bg-[var(--surface)] border border-[var(--line)] rounded-full px-3 py-[5px] whitespace-nowrap no-underline transition-colors";
 </script>
 
-<nav class="sticky top-0 z-20 bg-[color-mix(in_srgb,var(--bg)_85%,transparent)] backdrop-blur-md border-b border-[var(--line)]">
+<nav class="sticky top-0 z-[45] bg-[color-mix(in_srgb,var(--bg)_85%,transparent)] backdrop-blur-md border-b border-[var(--line)]">
   <div class="max-w-[900px] mx-auto px-7 h-[60px] grid grid-cols-[1fr_auto] lg:grid-cols-[1fr_auto_1fr] items-center gap-4">
     <a href="/" class="font-[family-name:var(--font-mono)] t-caption text-[var(--dim)] no-underline whitespace-nowrap">
       <b class="text-[var(--text)]">Gabriel Paiva</b><span class="hidden sm:inline">&nbsp;· backend & infra</span>
