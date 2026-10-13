@@ -1,0 +1,58 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+// A scannable QR code with a plain link next to it, for experiences that only work on a phone
+// (e.g. the 8th Wall AR). The QR sits on a white tile so it scans in dark mode too.
+interface Props {
+  qr: ImageMetadata;
+  qrAlt: string;
+  href: string;
+  title: string;
+  description: string;
+  /** Shown under the description, e.g. "Open on a phone, allow camera access." */
+  hint?: string;
+}
+const { qr, qrAlt, href, title, description, hint } = Astro.props;
+---
+
+<div class="qr-card">
+  <a class="tile" href={href} target="_blank" rel="noopener" aria-label={`${title} (opens in a new tab)`}>
+    <Image src={qr} alt={qrAlt} width={240} height={240} loading="lazy" />
+  </a>
+  <div class="text">
+    <h3>{title}</h3>
+    <p>{description}</p>
+    {hint && <p class="meta">{hint}</p>}
+    <a class="cta" href={href} target="_blank" rel="noopener">Open on this device →</a>
+  </div>
+</div>
+
+<style>
+  .qr-card {
+    display: grid; grid-template-columns: 1fr; gap: 1.25rem; align-items: center;
+    margin-block: 2rem; padding: 1.25rem 1.5rem;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  }
+  .tile {
+    justify-self: start; display: block; padding: 12px; background: #fff; border-radius: 10px;
+    line-height: 0; transition: transform .2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .tile:hover, .tile:focus-visible { transform: translateY(-2px); }
+  .tile:focus-visible, .cta:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+  .tile :global(img) { width: 168px; height: 168px; image-rendering: pixelated; }
+  .text { display: flex; flex-direction: column; gap: .5rem; }
+  h3 { margin: 0; color: var(--text); font-size: 1.15rem; font-weight: 600; }
+  p { margin: 0; color: var(--dim); font-size: 14.5px; line-height: 1.6; }
+  .meta { font-family: var(--font-mono); font-size: 12px; }
+  .cta { margin-top: .5rem; font-family: var(--font-mono); font-size: 13px; color: var(--brass); text-decoration: none; }
+  .cta:hover { text-decoration: underline; }
+
+  @media (min-width: 640px) {
+    .qr-card { grid-template-columns: auto minmax(0, 1fr); gap: 1.75rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tile { transition: none; }
+    .tile:hover, .tile:focus-visible { transform: none; }
+  }
+</style>

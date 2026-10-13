@@ -15,12 +15,14 @@ interface Props {
   slides: Slide[];
   title?: string;
   caption?: string;
+  /** CSS length capping each slide's height, e.g. "min(70vh, 520px)". Images are letterboxed, never cropped. */
+  maxHeight?: string;
 }
-const { slides, title = 'gallery', caption } = Astro.props;
+const { slides, title = 'gallery', caption, maxHeight } = Astro.props;
 ---
 
 <Window title={title} caption={caption}>
-  <div class="carousel" data-carousel role="group" aria-roledescription="carousel" aria-label={title}>
+  <div class="carousel" data-carousel role="group" aria-roledescription="carousel" aria-label={title} style={maxHeight ? `--max-h: ${maxHeight}` : undefined}>
     <div class="controls" hidden>
       <button type="button" data-prev aria-label="Previous">←</button>
       <span class="status" data-status aria-live="polite">{slides[0].label} (1 of {slides.length})</span>
@@ -53,7 +55,7 @@ const { slides, title = 'gallery', caption } = Astro.props;
   }
   .track:focus-visible { outline: 2px solid var(--brass); outline-offset: -2px; }
   .slide { flex: 0 0 100%; scroll-snap-align: start; min-width: 0; }
-  .slide :global(img) { display: block; width: 100%; height: auto; }
+  .slide :global(img) { display: block; width: 100%; height: auto; max-height: var(--max-h, none); object-fit: contain; }
   .controls {
     display: flex; align-items: center; justify-content: space-between; gap: 1rem;
     padding: .5rem 1rem; border-bottom: 1px solid var(--line);

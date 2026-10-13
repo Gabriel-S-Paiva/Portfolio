@@ -13,8 +13,10 @@ interface Props {
   aspect?: string;
   /** CSS object-position used when `aspect` crops the image, e.g. "top". Defaults to center. */
   focus?: string;
+  /** CSS length capping the image height, e.g. "min(70vh, 520px)". The image is letterboxed, not cropped. */
+  maxHeight?: string;
 }
-const { src, alt, title = 'preview', caption, aspect, focus = 'center' } = Astro.props;
+const { src, alt, title = 'preview', caption, aspect, focus = 'center', maxHeight } = Astro.props;
 ---
 
 <Window title={title} caption={caption}>
@@ -24,7 +26,7 @@ const { src, alt, title = 'preview', caption, aspect, focus = 'center' } = Astro
     widths={[480, 800, 1200]}
     sizes="(min-width: 900px) 844px, 100vw"
     class="shot"
-    style={aspect ? `aspect-ratio: ${aspect}; object-fit: cover; object-position: ${focus};` : undefined}
+    style={aspect ? `aspect-ratio: ${aspect}; object-fit: cover; object-position: ${focus};` : maxHeight ? `max-height: ${maxHeight}; object-fit: contain;` : undefined}
   />
 </Window>
 

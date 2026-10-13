@@ -20,6 +20,14 @@ import hexad from '../../assets/case-studies/planit/hexad-profile.svg';
 import rewards from '../../assets/case-studies/planit/rewards.png';
 import wireframe from '../../assets/case-studies/planit/wireframe-mobile.svg';
 import logo from '../../assets/case-studies/planit/logo.svg';
+import QrCard from '../../components/study/QrCard.astro';
+import arQr8thWall from '../../assets/case-studies/planit/ar-qr-8thwall.webp';
+import arQrCars from '../../assets/case-studies/planit/ar-qr-8thwall-cars.png';
+import arQrAframe from '../../assets/case-studies/planit/ar-qr-aframe.webp';
+import arPoster from '../../assets/case-studies/planit/ar-poster-8thwall.webp';
+import arPosterMarker from '../../assets/case-studies/planit/ar-poster-marker.webp';
+import arPage from '../../assets/case-studies/planit/ar-page-cars.webp';
+import arBmwCard from '../../assets/case-studies/planit/ar-bmw-card.webp';
 // Code excerpts live in files and are imported raw: MDX strips indentation from multi-line attributes.
 import combinar from '../../assets/case-studies/planit/code/combinar.js?raw';
 import tripsMulti from '../../assets/case-studies/planit/code/get-trips-multi.js?raw';
@@ -67,6 +75,63 @@ Averaged across all five, Free Spirit (21%) and Philanthropist (20.4%) lead and 
 The gamification layer is RewardIt, a points and levels system tied to bookings. Five levels, from Explorador to Embaixador, unlock benefits as points accumulate. Points come from spending (one point per euro on individual bookings, more on travel packages), with bonuses for booking lodging, transport and insurance together, and for inviting friends.
 
 <ShotWindow src={rewards} alt="RewardIt page showing the five loyalty levels and how points are earned" title="figma / desktop prototype / rewards" caption="The RewardIt page content from the desktop prototype. Text in the design is Portuguese." />
+
+## Augmented reality
+
+The poster and one page of the site also work as AR targets. It runs in the browser, with no app to install, and there are three experiences to try. Each has its own QR code: scan it with a phone, allow camera access, then point the camera at the image shown with it.
+
+### The poster
+
+On paper the poster is empty. Point the camera at it and its text appears on the artwork.
+
+<QrCard
+  qr={arQr8thWall}
+  qrAlt="QR code that opens the PlanIt poster AR experience"
+  href="https://8th.io/6uupu"
+  title="Poster experience"
+  description="Scan, then point the camera at the poster below."
+  hint="Built with 8th Wall. Image tracking, so the artwork itself is the target."
+/>
+
+<ShotWindow src={arPoster} alt="The PlanIt poster artwork: a frustrated man surrounded by maps and a magnifying glass, with no text on it until it is scanned" title="ar / 8th wall / poster" maxHeight="min(70vh, 520px)" caption="The poster artwork, which is the image target." />
+
+### The car rental page
+
+The second experience is tied to the website. Point the camera at the BMW card on the car rental page and a pop-up opens.
+
+<QrCard
+  qr={arQrCars}
+  qrAlt="QR code that opens the PlanIt car page AR experience"
+  href="https://antonioamorim.8thwall.app/planit/"
+  title="Car page experience"
+  description="Scan, then point the camera at the BMW card below."
+  hint="Built with 8th Wall. Image tracking, so the card itself is the target."
+/>
+
+<CarouselWindow
+  title="ar / 8th wall / car page"
+  maxHeight="min(70vh, 520px)"
+  caption="The BMW card is the image target, shown alone and in the page it comes from. Text in the design is Portuguese."
+  slides={[
+    { src: arBmwCard, label: 'BMW card', alt: 'The BMW Série 3 card from the PlanIt car rental page, the image target' },
+    { src: arPage, label: 'Car rental page', alt: 'The PlanIt car rental page with the Volkswagen Polo, BMW Série 3 and Nissan Qashqai cards, showing where the BMW card sits' },
+  ]}
+/>
+
+### The first version
+
+The first version was built with A-Frame and needs a printed marker on the poster to find its position, which is why the artwork carries a black-and-white square. 8th Wall tracks the image itself, so the marker is gone and the poster looks as designed.
+
+<QrCard
+  qr={arQrAframe}
+  qrAlt="QR code that opens the A-Frame prototype"
+  href="https://projeto-web-xr.vercel.app/"
+  title="A-Frame prototype"
+  description="Kept for comparison. It needs the marker poster below, so scan it from this page."
+  hint="Built with A-Frame, marker tracking."
+/>
+
+<ShotWindow src={arPosterMarker} alt="The PlanIt poster artwork with a black-and-white tracking marker in the center" title="ar / a-frame prototype" maxHeight="min(70vh, 520px)" caption="The A-Frame prototype's poster, with the tracking marker in the middle." />
 
 ## From wireframe to brand
 
