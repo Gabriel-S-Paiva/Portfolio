@@ -83,7 +83,7 @@
         </svg>
       {/if}
 
-      <span class="relative font-[family-name:var(--font-mono)] text-[11px] tracking-wide text-[var(--dim)] group-hover:text-[var(--text)] transition-colors">HEAD</span>
+      <span class="relative font-[family-name:var(--font-mono)] t-micro tracking-wide text-[var(--dim)] group-hover:text-[var(--text)] transition-colors">HEAD</span>
       <span class="relative text-[var(--brass)] font-[family-name:var(--font-mono)] text-sm leading-none group-hover:-translate-y-0.5 transition-transform">↑</span>
     </button>
   </div>

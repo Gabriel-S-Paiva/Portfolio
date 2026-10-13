@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "@fontsource-variable/geist/wght.css";
+@import "@fontsource-variable/geist-mono/wght.css";
 
 :root {
   --bg: #0c0e12;
@@ -6,13 +8,24 @@
   --surface-2: #171b22;
   --line: #232833;
   --text: #e6e9ee;
-  --dim: #8a92a1;
-  --dimmer: #565e6c;
+  --dim: #939bab;
+  --dimmer: #7a8292;
   --brass: #c99a5b;
   --green: #6fcf97;
-  --font-display: Georgia, 'Iowan Old Style', 'Palatino Linotype', serif;
-  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-  --font-mono: ui-monospace, 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  --font-body: 'Geist Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-display: var(--font-body);
+  --font-mono: 'Geist Mono Variable', ui-monospace, 'SF Mono', Consolas, monospace;
+
+  /* Type scale (fluid where it matters). Size / line-height / tracking live together in the .t-* classes below. */
+  --text-display: clamp(2.5rem, 1.7rem + 3.4vw, 4rem);
+  --text-h1: clamp(2.25rem, 1.8rem + 2vw, 3.25rem);
+  --text-h2: clamp(1.5rem, 1.3rem + 0.8vw, 1.875rem);
+  --text-h3: 1.1875rem;
+  --text-lead: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+  --text-body: 1rem;
+  --text-small: 0.9375rem;
+  --text-caption: 0.8125rem;
+  --text-micro: 0.75rem;
 }
 
 [data-theme="light"] {
@@ -21,8 +34,8 @@
   --surface-2: #efece1;
   --line: #d9d3c2;
   --text: #1c1c18;
-  --dim: #6b6a5f;
-  --dimmer: #96937f;
+  --dim: #55544a;
+  --dimmer: #6b6a5f;
   --brass: #a9762f;
   --green: #2f8f5c;
 }
@@ -31,8 +44,25 @@ body {
   background-color: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.6;
+  font-optical-sizing: auto;
+  text-rendering: optimizeLegibility;
   transition: background-color .25s ease, color .25s ease;
 }
+
+h1, h2, h3, h4 { text-wrap: balance; }
+p, li, dd { text-wrap: pretty; }
+code, kbd, pre, samp, time, .tabular { font-variant-numeric: tabular-nums; }
+
+.t-display { font-family: var(--font-display); font-size: var(--text-display); font-weight: 600; line-height: 1.04; letter-spacing: -0.035em; }
+.t-h1 { font-family: var(--font-display); font-size: var(--text-h1); font-weight: 600; line-height: 1.08; letter-spacing: -0.03em; }
+.t-h2 { font-family: var(--font-display); font-size: var(--text-h2); font-weight: 600; line-height: 1.2; letter-spacing: -0.02em; }
+.t-h3 { font-size: var(--text-h3); font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; }
+.t-lead { font-size: var(--text-lead); line-height: 1.55; letter-spacing: -0.005em; max-width: 60ch; }
+.t-small { font-size: var(--text-small); line-height: 1.6; }
+.t-caption { font-size: var(--text-caption); line-height: 1.5; }
+.t-micro { font-size: var(--text-micro); line-height: 1.4; letter-spacing: 0.01em; }
 
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
@@ -48,13 +78,13 @@ body {
 .astro-code { background-color: transparent !important; }
 
 /* Case study prose. Windows and other components opt out by not using these tags directly. */
-.study { color: var(--dim); font-size: 16px; line-height: 1.75; }
+.study { color: var(--dim); font-size: var(--text-body); line-height: 1.7; }
 .study > * + * { margin-top: 1.1rem; }
 .study h2 {
   font-family: var(--font-display); color: var(--text);
-  font-size: 1.75rem; line-height: 1.2; margin-top: 3rem;
+  font-size: var(--text-h2); font-weight: 600; line-height: 1.2; letter-spacing: -0.02em; margin-top: 3rem;
 }
-.study h3 { color: var(--text); font-size: 1.15rem; font-weight: 600; margin-top: 2rem; }
+.study h3 { color: var(--text); font-size: var(--text-h3); font-weight: 600; letter-spacing: -0.01em; margin-top: 2rem; }
 .study strong { color: var(--text); font-weight: 600; }
 .study a {
   color: var(--text); text-decoration: underline;

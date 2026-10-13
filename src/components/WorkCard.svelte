@@ -108,28 +108,28 @@
 >
   <div class="commit-msg commit-branch"></div>
   <div class="flex justify-between items-baseline mb-2.5 flex-wrap gap-2">
-    <h3 id={titleId} class="node-anchor text-[19px] text-[var(--text)] font-semibold">{title}</h3>
+    <h3 id={titleId} class="node-anchor t-h3 text-[var(--text)] font-semibold">{title}</h3>
     <span class="font-[family-name:var(--font-mono)] text-xs text-[var(--dimmer)]">{date}</span>
   </div>
 
   <div class="text-xs text-[var(--brass)] mb-3.5 flex items-center gap-2">
     {role}
     {#if awardBadge}
-      <span class="font-[family-name:var(--font-mono)] text-[10px] text-[var(--brass)] bg-[#c99a5b15] border border-[#c99a5b30] px-1.5 py-0.5 rounded">
+      <span class="font-[family-name:var(--font-mono)] t-micro text-[var(--brass)] bg-[#c99a5b15] border border-[#c99a5b30] px-1.5 py-0.5 rounded">
         {awardBadge}
       </span>
     {/if}
   </div>
 
   {#if descriptionHtml}
-    <div class="text-[var(--dim)] text-[14.5px] mb-4 [&_p]:mb-3 [&_ul]:list-disc [&_ul]:ml-4 [&_li]:mb-1">
+    <div class="text-[var(--dim)] t-small mb-4 [&_p]:mb-3 [&_ul]:list-disc [&_ul]:ml-4 [&_li]:mb-1">
       {@html descriptionHtml}
     </div>
   {/if}
 
   <div class="flex flex-wrap gap-1.5 mb-3.5">
     {#each stack as tag}
-      <span class="font-[family-name:var(--font-mono)] text-[11px] text-[var(--green)] bg-[#6fcf9714] border border-[#6fcf9730] px-2 py-0.5 rounded">
+      <span class="font-[family-name:var(--font-mono)] t-micro text-[var(--green)] bg-[#6fcf9714] border border-[#6fcf9730] px-2 py-0.5 rounded">
         {tag}
       </span>
     {/each}
@@ -142,7 +142,7 @@
       </a>
     {/if}
   </div>
-  <div class="text-[10.5px] text-[var(--dimmer)] mt-2.5 font-[family-name:var(--font-mono)]">
+  <div class="t-micro text-[var(--dimmer)] mt-2.5 font-[family-name:var(--font-mono)]">
     hover the card to preview the project
   </div>
 </div>
@@ -160,7 +160,7 @@
       {#if isImage}
         <img src={shot} alt="" class="w-full h-full object-cover object-center block" />
       {:else}
-        <div class="h-full text-[var(--dim)] text-[11px] font-[family-name:var(--font-mono)] p-3 overflow-hidden">
+        <div class="h-full text-[var(--dim)] t-micro font-[family-name:var(--font-mono)] p-3 overflow-hidden">
           {shot}
         </div>
       {/if}

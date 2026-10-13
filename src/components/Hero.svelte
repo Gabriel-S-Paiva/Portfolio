@@ -15,9 +15,9 @@
   </span>
   <TypedHeadline
     segments={headlineSegments}
-    class="font-[family-name:var(--font-display)] text-4xl sm:text-[52px] font-normal leading-[1.08] text-[var(--text)] mb-5 tracking-[-0.01em] min-h-[2.2em]"
+    class="t-display text-[var(--text)] mb-5 min-h-[2.2em]"
   />
-  <p class="text-[18px] text-[var(--dim)] max-w-[600px] mb-7 leading-relaxed">
+  <p class="t-lead text-[var(--dim)] max-w-[600px] mb-7">
     Web Information Systems and Technologies student at ESMAD / Politécnico do Porto. Winner of 4 coding competitions & hackathons, focused on REST APIs, backend architecture, and self-hosting services on hardware I assemble myself.
   </p>
   <div class="flex gap-3.5">

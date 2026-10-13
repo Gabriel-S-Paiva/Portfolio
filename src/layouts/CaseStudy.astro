@@ -24,19 +24,19 @@ const { title, summary, project } = Astro.props;
     <a href="/showcase" class="font-[family-name:var(--font-mono)] text-xs text-[var(--dim)] no-underline hover:text-[var(--brass)] transition-colors">← Showcase</a>
 
     <header class="mt-8 max-w-[680px]">
-      <h1 class="font-[family-name:var(--font-display)] text-4xl md:text-5xl tracking-tight leading-[1.1]">{title}</h1>
-      <p class="mt-5 text-lg text-[var(--dim)] leading-relaxed">{summary}</p>
+      <h1 class="t-h1">{title}</h1>
+      <p class="mt-5 t-lead text-[var(--dim)]">{summary}</p>
 
       <div class="mt-6 text-sm text-[var(--brass)] flex flex-wrap items-center gap-x-3 gap-y-2">
         <span>{project.role}</span>
         {project.awardBadge && (
-          <span class="font-[family-name:var(--font-mono)] text-[11px] bg-[#c99a5b15] border border-[#c99a5b30] px-2 py-0.5 rounded">{project.awardBadge}</span>
+          <span class="font-[family-name:var(--font-mono)] t-micro bg-[#c99a5b15] border border-[#c99a5b30] px-2 py-0.5 rounded">{project.awardBadge}</span>
         )}
       </div>
 
       <div class="mt-4 flex flex-wrap gap-1.5">
         {project.stack.map((t) => (
-          <span class="font-[family-name:var(--font-mono)] text-[11px] text-[var(--green)] bg-[#6fcf9714] border border-[#6fcf9730] px-2 py-0.5 rounded">{t}</span>
+          <span class="font-[family-name:var(--font-mono)] t-micro text-[var(--green)] bg-[#6fcf9714] border border-[#6fcf9730] px-2 py-0.5 rounded">{t}</span>
         ))}
       </div>
 

@@ -24,20 +24,20 @@ const groups = [
 
   <main class="max-w-[900px] mx-auto px-7 pt-20 pb-10">
     <header class="max-w-[680px]">
-      <h1 class="font-[family-name:var(--font-display)] text-4xl md:text-5xl tracking-tight leading-[1.1]">Showcase</h1>
-      <p class="mt-5 text-lg text-[var(--dim)] leading-relaxed">Case studies for the work I'm proudest of, and every public repository below.</p>
+      <h1 class="t-h1">Showcase</h1>
+      <p class="mt-5 t-lead text-[var(--dim)]">Case studies for the work I'm proudest of, and every public repository below.</p>
     </header>
 
     {studyCards.length > 0 && (
       <section aria-labelledby="studies-title" class="mt-14">
-        <h2 id="studies-title" class="font-[family-name:var(--font-display)] text-2xl">Case studies</h2>
+        <h2 id="studies-title" class="t-h2">Case studies</h2>
         <ul class="mt-6 grid gap-5 md:grid-cols-2">
           {studyCards.map(({ study, project }) => (
             <li>
               <a href={`/showcase/${study.id}`} class="block h-full bg-[var(--surface)] border border-[var(--line)] rounded-xl p-6 no-underline transition-colors hover:border-[var(--brass)]">
-                <h3 class="text-[19px] font-semibold text-[var(--text)]">{study.data.title}</h3>
+                <h3 class="t-h3 font-semibold text-[var(--text)]">{study.data.title}</h3>
                 <p class="mt-1.5 text-xs text-[var(--brass)]">{project.data.role}</p>
-                <p class="mt-3 text-[14.5px] text-[var(--dim)] leading-relaxed">{study.data.summary}</p>
+                <p class="mt-3 t-small text-[var(--dim)] leading-relaxed">{study.data.summary}</p>
                 <span class="mt-4 inline-block font-[family-name:var(--font-mono)] text-xs text-[var(--dim)]">Read case study →</span>
               </a>
             </li>
@@ -47,7 +47,7 @@ const groups = [
     )}
 
     <section aria-labelledby="repos-title" class="mt-16 border-t border-[var(--line)] pt-14">
-      <h2 id="repos-title" class="font-[family-name:var(--font-display)] text-2xl">All repositories</h2>
+      <h2 id="repos-title" class="t-h2">All repositories</h2>
 
       {groups.map((g) => {
         const items = repos
@@ -62,7 +62,7 @@ const groups = [
                   <a href={r.data.url} target="_blank" rel="noopener" class="font-[family-name:var(--font-mono)] text-sm text-[var(--text)] no-underline hover:text-[var(--brass)] transition-colors">
                     {r.data.name} ↗
                   </a>
-                  <p class="mt-2 text-[14px] text-[var(--dim)] leading-relaxed">{r.data.description}</p>
+                  <p class="mt-2 t-small text-[var(--dim)] leading-relaxed">{r.data.description}</p>
                   <p class="mt-3 font-[family-name:var(--font-mono)] text-xs text-[var(--dim)]">
                     {r.data.language}, {r.data.year}{r.data.archived ? ', archived' : ''}
                   </p>

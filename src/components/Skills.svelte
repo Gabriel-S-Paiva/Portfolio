@@ -10,12 +10,12 @@
     {#each skillGroups as group}
       <div class="skill-group" data-commit={group.commit}>
         <div class="commit-msg commit-branch"></div>
-        <h3 class="node-anchor font-[family-name:var(--font-mono)] text-xs text-[var(--brass)] uppercase tracking-[0.05em] mb-3">
+        <h3 class="node-anchor font-[family-name:var(--font-mono)] text-xs text-[var(--brass)] mb-3">
           {group.title}
         </h3>
         <div class="flex flex-wrap gap-2">
           {#each group.skills as skill}
-            <span class="text-[13px] px-3 py-[6px] bg-[var(--surface)] border border-[var(--line)] rounded-full text-[var(--text)]">
+            <span class="t-caption px-3 py-[6px] bg-[var(--surface)] border border-[var(--line)] rounded-full text-[var(--text)]">
               {skill}
             </span>
           {/each}
