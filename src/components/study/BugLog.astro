@@ -1,0 +1,18 @@
+---
+import Window from './Window.astro';
+
+// Container for a list of <BugCard> rows. Rows are native <details>, so it works without JS.
+interface Props {
+  title?: string;
+  caption?: string;
+}
+const { title = 'bug log', caption } = Astro.props;
+---
+
+<Window title={title} caption={caption}>
+  <div class="log"><slot /></div>
+</Window>
+
+<style>
+  .log { display: block; }
+</style>

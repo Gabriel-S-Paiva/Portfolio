@@ -1,0 +1,40 @@
+---
+import Window from './Window.astro';
+
+// An honest status list: what is done, what is a known gap, what is planned.
+interface Item {
+  state: 'done' | 'gap' | 'planned';
+  text: string;
+}
+interface Props {
+  title?: string;
+  items: Item[];
+  caption?: string;
+}
+const { title = 'status / v1.0.0', items, caption } = Astro.props;
+const mark = { done: '✓', gap: '!', planned: '…' } as const;
+const word = { done: 'done', gap: 'gap', planned: 'planned' } as const;
+---
+
+<Window title={title} caption={caption}>
+  <ul class="ledger">
+    {items.map((i) => (
+      <li class={i.state}>
+        <span class="mark" aria-hidden="true">{mark[i.state]}</span>
+        <span class="sr">{word[i.state]}: </span>
+        <span>{i.text}</span>
+      </li>
+    ))}
+  </ul>
+</Window>
+
+<style>
+  .ledger { list-style: none; margin: 0; padding: .5rem 1rem; }
+  li { display: grid; grid-template-columns: 1.5rem 1fr; gap: .5rem; padding: .5rem 0; font-size: 13.5px; line-height: 1.55; color: var(--dim); border-bottom: 1px solid var(--line); }
+  li:last-child { border-bottom: 0; }
+  .mark { font-family: var(--font-mono); font-weight: 700; }
+  .done .mark { color: var(--green); }
+  .gap .mark { color: var(--brass); }
+  .planned .mark { color: var(--dimmer); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+</style>

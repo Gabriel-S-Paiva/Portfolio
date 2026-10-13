@@ -46,7 +46,7 @@ const { title, summary, project } = Astro.props;
       )}
     </header>
 
-    {project.shot && (
+    {project.shot?.startsWith("/") && (
       <figure class="mt-10 max-w-[844px] overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--surface)]">
         <img src={project.shot} alt={`${title} project cover`} width="1920" height="960" loading="eager" class="block w-full h-auto" />
       </figure>
