@@ -70,4 +70,15 @@ const repos = defineCollection({
   }),
 });
 
-export const collections = { projects, awards, education, caseStudies, repos };
+const blog = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/blog' }),
+  schema: z.object({
+    title: z.string(),
+    summary: z.string(),
+    date: z.coerce.date(),
+    // Drafts render only in `pnpm dev`; production builds skip them.
+    draft: z.boolean().default(true),
+  }),
+});
+
+export const collections = { projects, awards, education, caseStudies, repos, blog };

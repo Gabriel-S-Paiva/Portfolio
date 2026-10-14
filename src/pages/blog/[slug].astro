@@ -1,0 +1,30 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import Nav from '../../components/Nav.svelte';
+import Footer from '../../components/Footer.svelte';
+
+export async function getStaticPaths() {
+  // Drafts are visible in `astro dev` only.
+  const posts = await getCollection('blog', (e) => import.meta.env.DEV || !e.data.draft);
+  return posts.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<Layout title={`${entry.data.title} | Gabriel Paiva`} description={entry.data.summary}>
+  <Nav client:load current="/blog" />
+  <main class="max-w-[900px] mx-auto px-7 pt-16 pb-10">
+    <a href="/blog" class="font-[family-name:var(--font-mono)] text-xs text-[var(--dim)] no-underline hover:text-[var(--brass)] transition-colors">← Blog</a>
+    <header class="mt-8 max-w-[680px]">
+      <h1 class="t-h1">{entry.data.title}</h1>
+      <p class="mt-5 t-lead text-[var(--dim)]">{entry.data.summary}</p>
+    </header>
+    <article class="study mt-12 max-w-[844px]">
+      <Content />
+    </article>
+  </main>
+  <Footer />
+</Layout>

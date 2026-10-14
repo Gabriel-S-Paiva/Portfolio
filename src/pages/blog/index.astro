@@ -1,5 +1,36 @@
 ---
+import { getCollection } from 'astro:content';
 import EmptyPage from '../../components/EmptyPage.astro';
+import Layout from '../../layouts/Layout.astro';
+import Nav from '../../components/Nav.svelte';
+import Footer from '../../components/Footer.svelte';
+
+// Drafts are visible in `astro dev` only.
+const posts = (await getCollection('blog', (e) => import.meta.env.DEV || !e.data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 
-<EmptyPage title="Blog" heading="Blog" />
+{posts.length === 0 ? (
+  <EmptyPage title="Blog" heading="Blog" />
+) : (
+  <Layout title="Blog | Gabriel Paiva" description="Notes on backend work and self-hosting.">
+    <Nav client:load current={Astro.url.pathname} />
+    <main class="max-w-[900px] mx-auto px-7 pt-14 md:pt-20 pb-10 min-h-[60dvh]">
+      <h1 class="t-h1">Blog</h1>
+      <ul class="mt-10 space-y-8 max-w-[680px]">
+        {posts.map((post) => (
+          <li>
+            <a href={`/blog/${post.id}`} class="group block no-underline">
+              <p class="font-[family-name:var(--font-mono)] t-caption text-[var(--dimmer)]">
+                {post.data.date.toISOString().slice(0, 10)}{post.data.draft && ' · draft'}
+              </p>
+              <h2 class="t-h2 text-[var(--text)] group-hover:text-[var(--brass)] transition-colors">{post.data.title}</h2>
+              <p class="mt-2 t-small text-[var(--dim)]">{post.data.summary}</p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </main>
+    <Footer />
+  </Layout>
+)}
