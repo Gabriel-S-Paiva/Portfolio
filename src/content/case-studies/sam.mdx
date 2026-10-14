@@ -7,6 +7,7 @@ draft: true
 ---
 import CodeWindow from '../../components/study/CodeWindow.astro';
 import TerminalWindow from '../../components/study/TerminalWindow.astro';
+import Tldr from '../../components/study/Tldr.astro';
 import Facts from '../../components/study/Facts.astro';
 import Flow from '../../components/study/Flow.astro';
 import BugCard from '../../components/study/BugCard.astro';
@@ -27,6 +28,15 @@ import createLead from '../../assets/case-studies/sam/code/create-lead.js?raw';
   family-revoke attribution, municipality name, report as a DocumentCard, AI-use mention.
   Set draft: false when approved.
 */}
+
+<Tldr
+  lead="The backend of a municipal donation platform, built by a team of three. It won Best WebPII Project 2025/26."
+  points={[
+    { label: 'Mine', tone: 'brass', text: 'The schema and UML, the Express API, authentication with rotating refresh tokens, role-based access, CRUD over MySQL and MongoDB, and one consistent error shape.' },
+    { label: "Teammates'", tone: 'dim', text: 'The Nuxt frontend, deployment, notifications, the hardware and the load-test scripts.' },
+    { label: 'Honest', tone: 'green', text: 'The weak spots and what I would change are listed at the end, not hidden.' },
+  ]}
+/>
 
 ## What it is
 
@@ -89,7 +99,7 @@ The rotation, the logout and the `RefreshTokens` model with its token family wer
   { label: 'Rotate', text: 'Otherwise the old token is revoked, a new one is stored in the same family and both tokens are returned. A blocked account gets a 403 instead.' },
 ]} caption="The order matters: the reuse check comes before the expiry check, so a replayed token is punished even if it has also expired." />
 
-Authorization is three small middleware functions. `verifyJWT` accepts a JWT or a permanent API token with a `sam_` prefix, stored only as a hash. `requireRoles` checks the role against a list. `adminOrSelf` lets a request through if the caller is an admin or the entity named in the URL, and rejects any identifier that is not exactly nine digits. The API tokens and the internal-key bypass were added by Teammate A.
+Authorization is three small middleware functions. `verifyJWT` accepts a JWT or a permanent API token with a `sam_` prefix, stored only as a hash. `requireRoles` checks the role against a list. `adminOrSelf` lets a request through if the caller is an admin or the entity named in the URL, and rejects any identifier that is not exactly nine digits. The API tokens and a service-to-service shortcut were added by Teammate A.
 
 <CodeWindow file="middleware/auth.middleware.js" lang="js" href="https://github.com/Gabriel-S-Paiva/p2-sam-backend/blob/b8daf3d2d0c2833bf82fddabaa2a787183cbc6ad/middleware/auth.middleware.js#L18-L77" caption="verifyJWT, requireRoles and adminOrSelf. The sam_ branch was added by Teammate A." code={authMiddleware} />
 
@@ -137,7 +147,7 @@ The backend repo has no tests of its own. Its `test` script is the default stub.
   lesson="A bypass for your own tests is a bypass for everyone who learns the header."
   symptom="The login limiter allows 10 attempts per 15 minutes. Automated suites that log in repeatedly hit 429s and failed."
   cause="The tests needed to log in more often than the limiter allowed."
-  fix="A a `x-test-client` header that skipped the limiters was added, then removed a few days later. The suites now have to live inside the limit, which is also why some acceptance cases were skipped.">
+  fix="An `x-test-client` header that skipped the limiters was added, then removed a few days later. The suites now have to live inside the limit, which is also why some acceptance cases were skipped.">
 
 ```text
 782b915  Rate limit bypasser
@@ -156,9 +166,9 @@ b8daf3d  Removed rate limite skip
 <Ledger items={[
   { state: 'done', text: 'Authentication with rotation and reuse detection, role-based access, CRUD for all entities, one error shape, and transactions on the writes that touch several tables.' },
   { state: 'done', text: 'Ran end to end as a demo: panel, PIN email, locker and admin back-office, deployed on a teammate\'s server.' },
-  { state: 'gap', text: 'The internal-key bypass trusts the `X-User-Nif` and `X-User-Role` headers whenever the shared key matches. A leaked key means any identity, including admin.' },
-  { state: 'gap', text: 'The global rate limiter skips `/telemetry`, `/lockers`, `/leads`, `/needs` and `/institutions`, because the kiosk polls them. `/leads` is public by design, so it is unthrottled.' },
-  { state: 'gap', text: '`GET /notifications/:id` is mounted without authentication.' },
+  { state: 'gap', text: 'Service-to-service access leans on a shared secret, so one leaked key would be enough. Machine access should be narrow and should never let the caller choose their own identity.' },
+  { state: 'gap', text: 'Rate limiting exempts some endpoints because the kiosk polls them. A public write endpoint should still have its own limit, and that exemption was never revisited.' },
+  { state: 'gap', text: 'At least one read route was mounted without authentication. Every route should be authenticated by default, with exceptions listed on purpose.' },
   { state: 'gap', text: 'Locker door state is held in memory in the API process, so a restart loses it and only one instance can run.' },
   { state: 'gap', text: 'No tests in the backend repo, and no health endpoint.' },
   { state: 'planned', text: 'Nothing is planned. It was a university project and it is finished.' },
@@ -169,7 +179,7 @@ b8daf3d  Removed rate limite skip
 - Freeze the API contract before the frontend builds against it. One existed in Notion and still drifted.
 - Write backend tests in the backend repo, alongside the features and not at the end.
 - Generate the PIN on the server.
-- Narrow the internal key to specific routes and stop trusting identity headers.
+- Scope machine-to-machine access narrowly, and authenticate every route by default.
 - Persist locker state and add a health endpoint.
 
 ## Links

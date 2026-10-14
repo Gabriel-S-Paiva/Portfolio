@@ -14,6 +14,8 @@ import BugCard from '../../components/study/BugCard.astro';
 import BugLog from '../../components/study/BugLog.astro';
 import Ledger from '../../components/study/Ledger.astro';
 import Architecture from '../../components/study/Architecture.astro';
+import driveList from '../../assets/case-studies/owned-cloud/drive-list.png';
+import driveShares from '../../assets/case-studies/owned-cloud/drive-shares.png';
 import landing from '../../assets/case-studies/owned-cloud/landing.png';
 // Code excerpts live in files and are imported raw: MDX strips indentation from multi-line attributes.
 import uploadIntent from '../../assets/case-studies/owned-cloud/code/upload-intent.go?raw';
@@ -40,7 +42,11 @@ I started it because I had old hardware that was too slow to be a main machine a
   { label: 'Reach', value: 'LAN only for now, HTTP' },
 ]} />
 
-<ShotWindow src={landing} alt="Owned Cloud landing page: the headline 'Your files. Your server. Your rules.' beside a sample file list, with four feature notes below" title="owned cloud / landing page" caption="The landing page. The file list is sample content, not real data. I do not have a screenshot of the drive itself in the repo yet." />
+<ShotWindow src={landing} alt="Owned Cloud landing page: the headline 'Your files. Your server. Your rules.' beside a sample file list, with four feature notes below" title="owned cloud / landing page" caption="The landing page. The file list is sample content, not real data." />
+
+<ShotWindow src={driveList} alt="Owned Cloud drive: sidebar with Files, Shared With Me, Manage Shares, Profile and Admin, and a list of five folders and four files in the home folder" title="owned cloud / the drive" caption="The home folder in list view. Captured from a local run with demo data I seeded for the screenshot: the folders and files are placeholders, not my family's files." />
+
+<ShotWindow src={driveShares} alt="Manage Shares page listing two folders shared with another user, one with Edit permission and one with View" title="owned cloud / manage shares" caption="Manage Shares: each share has its own View or Edit permission and can be revoked. Same demo data." />
 
 ## Why Go, and what I did differently from Express
 

@@ -9,7 +9,7 @@
   ];
 </script>
 
-<header class="py-[90px] pb-[70px] max-w-[900px] mx-auto px-7">
+<header class="min-h-[calc(100svh-3.75rem)] flex flex-col justify-center pt-12 pb-[120px] max-w-[900px] mx-auto px-7">
   <span class="font-[family-name:var(--font-mono)] text-xs text-[var(--green)] tracking-[0.04em] mb-[18px] block before:content-['branch:_'] before:text-[var(--dimmer)]">
     main
   </span>

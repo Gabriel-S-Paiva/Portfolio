@@ -14,6 +14,8 @@ const projects = defineCollection({
     commit: z.string(),
     shot: z.string().optional(),
     order: z.number().optional(),
+    // Shown as a Work card on the landing page. Keep in sync with published case studies.
+    featured: z.boolean().default(true),
   }),
 });
 

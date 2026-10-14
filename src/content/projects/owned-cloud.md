@@ -13,4 +13,4 @@ A self-hosted Dropbox-style file cloud with role-based auth, storage quota enfor
 - Designed a single-origin Caddy reverse-proxy setup enabling secure HttpOnly cookie session auth over LAN HTTP.
 - Engineered a two-phase chunked upload pipeline with transactional quota reservations.
 - Configured GitHub Actions CI/CD with automated vulnerability scanning (govulncheck, pnpm audit) and Dependabot updates.
-- Achieved 67% test coverage on the storage layer via `go test`. Currently self-hosted on home server hardware.
+- Achieved 69.2% test coverage on the storage layer via `go test`. Currently self-hosted on home server hardware.

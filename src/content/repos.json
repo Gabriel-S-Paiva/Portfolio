@@ -38,9 +38,9 @@
   {
     "id": "p2-sam-automated-tests",
     "name": "p2-sam-automated-tests",
-    "description": "Automated tests for Project SAM.",
+    "description": "Automated test suite for Project SAM, run against the deployed system: Selenium acceptance checks, Postman/Newman API collections and JMeter load tests. Two contributors.",
     "url": "https://github.com/Gabriel-S-Paiva/p2-sam-automated-tests",
-    "language": "HTML",
+    "language": "JavaScript",
     "kind": "team",
     "year": "2026"
   },
@@ -65,7 +65,7 @@
   {
     "id": "cg-threejs",
     "name": "cg-threejs",
-    "description": "Computer graphics coursework built with Three.js.",
+    "description": "Computer Graphics coursework: a 3D Tamagotchi in Three.js with Rapier physics. A pet hatches from an egg, runs on a state machine (idle, eating, playing, sleeping, ragdoll), reacts to microphone input and has three camera modes.",
     "url": "https://github.com/Gabriel-S-Paiva/cg-threejs",
     "language": "JavaScript",
     "kind": "course",
@@ -74,7 +74,7 @@
   {
     "id": "pw1-eco-tracker",
     "name": "pw1-eco-tracker",
-    "description": "Programação Web I course project built with Vue.",
+    "description": "b.green, a family sustainability tracker for the Programação Web I course: energy and CO2 tracking for household appliances plus a gamification layer of tasks, XP, streaks, badges and rewards. Vue 3, Pinia, Tailwind. Team of three.",
     "url": "https://github.com/Gabriel-S-Paiva/pw1-eco-tracker",
     "language": "Vue",
     "kind": "team",
@@ -84,7 +84,7 @@
   {
     "id": "mosaic",
     "name": "mosaic",
-    "description": "Vue.js project.",
+    "description": "Small productivity dashboard in Vue 3, TypeScript and Pinia, with a timer, tasks, flashcards with a flip animation and a PDF reader. Built with Tailwind; mostly UI, with no backend or persistence.",
     "url": "https://github.com/Gabriel-S-Paiva/mosaic",
     "language": "Vue",
     "kind": "solo",

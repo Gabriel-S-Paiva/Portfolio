@@ -6,4 +6,4 @@ year: "2026"
 order: 5
 commit: 'git commit -m "award: webpii 1st place"'
 ---
-Awarded 1st place recognition for backend system architecture, dual-database integration (MySQL and MongoDB), and security implementation on Project SAM.
+1st place, Best WebPII Project 2025/26, for Project SAM.

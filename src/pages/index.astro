@@ -52,7 +52,7 @@ const educationList = rawEducation.map((entry) => ({
   <Hero client:load />
   <About />
   <Skills />
-  <Projects {projects} client:load/>
+  <Projects projects={projects.filter((p) => p.featured !== false)} client:load/>
   <Honors {awards}/>
   <Education {educationList}/>
   <Contact />
