@@ -56,7 +56,7 @@
   {
     "id": "arcadia",
     "name": "Arcadia",
-    "description": "2D canvas game in two phases, a platformer and a camera-based AR phase. I built the platformer phase.",
+    "description": "2D canvas game: I built the platformer phase, a teammate built the hand-gesture AR phase and the menu.",
     "url": "https://github.com/Gabriel-S-Paiva/Arcadia",
     "language": "JavaScript",
     "kind": "team",
@@ -65,7 +65,7 @@
   {
     "id": "cg-threejs",
     "name": "cg-threejs",
-    "description": "Computer Graphics coursework: a 3D Tamagotchi in Three.js with Rapier physics. A pet hatches from an egg, runs on a state machine (idle, eating, playing, sleeping, ragdoll), reacts to microphone input and has three camera modes.",
+    "description": "Solo 3D virtual pet for Computer Graphics: Three.js rendering, Rapier physics with ragdoll, procedural animation, microphone-driven lip-sync.",
     "url": "https://github.com/Gabriel-S-Paiva/cg-threejs",
     "language": "JavaScript",
     "kind": "course",
@@ -74,7 +74,7 @@
   {
     "id": "pw1-eco-tracker",
     "name": "pw1-eco-tracker",
-    "description": "b.green, a family sustainability tracker for the Programação Web I course: energy and CO2 tracking for household appliances plus a gamification layer of tasks, XP, streaks, badges and rewards. Vue 3, Pinia, Tailwind. Team of three.",
+    "description": "b.green: family eco-footprint tracker with gamified tasks, leaderboards, an admin dashboard and an AI chatbot. Vue 3, Pinia and Tailwind against a custom API. Team of three, 199 commits. Archived fork.",
     "url": "https://github.com/Gabriel-S-Paiva/pw1-eco-tracker",
     "language": "Vue",
     "kind": "team",
@@ -84,7 +84,7 @@
   {
     "id": "mosaic",
     "name": "mosaic",
-    "description": "Small productivity dashboard in Vue 3, TypeScript and Pinia, with a timer, tasks, flashcards with a flip animation and a PDF reader. Built with Tailwind; mostly UI, with no backend or persistence.",
+    "description": "Summer solo project: a Vue 3, Pinia and TypeScript dashboard, built by working through the book I won with PlanIt. My first TypeScript. UI-first, persistence not built.",
     "url": "https://github.com/Gabriel-S-Paiva/mosaic",
     "language": "Vue",
     "kind": "solo",
