@@ -28,3 +28,5 @@ pnpm-debug.log*
 Dockerfile
 docker-compose.yml
 .dockerignore
+# Host-written status output
+status
