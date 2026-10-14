@@ -23,20 +23,19 @@ import calcEmissions from '../../assets/case-studies/bgreen/code/calculate-emiss
   DRAFT. Sources: the pw1-eco-tracker README, git log and blame at 57d712c, the b.green Figma cover and the ECDI FigJam board.
   Commits: Gabi 94 of 199. Blame (src/): userStore 77% Gabi, tasksStore and appliancesStore 99%, the three store spec files 100%,
   AdminDashboardView 75%, QuickStartView 69%, ProfileSelectionView 71%, ChatBot 63%.
-  António: project manager (README), the carbon API (amorima/b.green_api, 32/32 commits, hosted on his server),
-  cloudinaryService, most of LandingPage and StatisticsChart, and the backup/rollback pattern in the store actions.
-  Emanuel: most of the component tests.
+  Teammates (kept anonymous on the page by Gabi's choice): the carbon API in its own repo and server, the image upload service,
+  most of the landing page and statistics chart, the backup/rollback pattern in the store actions, most component tests.
   Screenshots: local run (vite + json-server, seed household "Sofia"), Vue devtools overlay hidden.
   The FigJam board stickies are split about evenly between the three of us; the wireflow nodes carry no author.
   The two Figma design files only expose the logo cover through the API.
-  Needs Gabi: his role wording, who designed the logo and the UI, whether to name teammates, grade or result if any.
+  Credits stay anonymous and short: the page is about the stores, not the split.
 */}
 
 <Tldr
   lead="A web app that turns a family's energy use and green habits into points, badges and rewards. Team of three, one semester."
   points={[
     { label: 'Mine', tone: 'brass', text: 'The user, tasks and appliances Pinia stores and their 113 unit tests, the admin dashboard, the first-use setup wizard and profile selection with PINs.' },
-    { label: "Teammates'", tone: 'dim', text: 'The carbon emissions API and its server, the landing page, image uploads, the statistics chart and most component tests. António was project manager.' },
+    { label: "Teammates'", tone: 'dim', text: 'The carbon emissions API, the landing page and most of the component tests.' },
     { label: 'Honest', tone: 'green', text: 'There is no real backend. It runs against a json-server mock, and the security gaps that come with that are listed below.' },
   ]}
 />
@@ -58,11 +57,7 @@ It was the team project for Web Programming I at ESMAD in 2025/26.
 
 ## Who built what
 
-The repo is public, so the split is here up front.
-
-**Me.** The three Pinia stores that hold almost all of the app's logic: `userStore` (accounts, profiles, points, XP, levels, streaks, badges, rewards), `tasksStore` and `appliancesStore`. The 113 unit tests for those stores. The admin dashboard, where the admin manages members, rewards, appliances, tasks and challenges. The QuickStart wizard that sets up a household on first login, and profile selection with optional PINs per profile and an admin PIN. Most of the chatbot component.
-
-**Teammates.** António managed the project and built the carbon emissions API in its own repo, hosted on his server. He also built the image upload service and most of the landing page and the statistics chart, and introduced the backup-and-rollback pattern the store actions use. Emanuel wrote most of the component tests. Several views were shared work.
+The stores, their tests, the admin dashboard, the QuickStart wizard and profile selection with PINs are mine. My teammates built the carbon emissions API, the landing page, image uploads and most of the component tests, and several views were shared work.
 
 ## From flow to screens
 
@@ -74,7 +69,7 @@ The team mapped the app as a wireflow before building it: landing, sign-up and l
 
 ## The stores are the backend
 
-With no server of our own, the Pinia stores carry the logic a backend would: validation, point accounting, level-ups, streaks, badge checks, and reward redemption and approval. Each action changes local state and then writes the household document back to json-server.
+With no server of our own, the Pinia stores carry the logic a backend would: validation, point accounting, level-ups, streaks, badge checks, and reward redemption and approval. Each action changes local state and then writes the household document back to json-server. The backup-and-rollback around each write came from a teammate's refactor; the logic inside the actions is mine.
 
 <Flow title="b.green / data path" steps={[
   { label: 'View', text: 'A Vue view calls a store action, such as completing a task or redeeming a reward.' },
@@ -87,7 +82,7 @@ The appliance emissions are the clearest example. The store calls the carbon API
 
 <CodeWindow file="src/stores/appliencesStore.js" lang="js" href="https://github.com/Gabriel-S-Paiva/pw1-eco-tracker/blob/57d712c58f3cd46cf5732a4074daee01da366a53/src/stores/appliencesStore.js#L149-L209" caption="calculateEmissions in the store: the API client first, a labelled local fallback second. The 0.188 kg CO₂/kWh factor is the one the code uses." code={calcEmissions} />
 
-There is a catch. The API client, mostly António's, has its own local fallback for when no API key is configured, and that one does not label its result. So the same estimate is written twice, and a number can be local without saying so.
+There is a catch. The API client, mostly a teammate's, has its own local fallback for when no API key is configured, and that one does not label its result. So the same estimate is written twice, and a number can be local without saying so.
 
 ## The admin side
 
@@ -97,7 +92,7 @@ The admin dashboard is one page with collapsible, draggable sections for members
 
 ## Tests
 
-I wrote the store tests with Vitest. They cover login and registration, profile CRUD and its limits, points, XP and level-ups, reward redemption, streaks, and the tasks and appliances CRUD. The component tests are mostly Emanuel's.
+I wrote the store tests with Vitest. They cover login and registration, profile CRUD and its limits, points, XP and level-ups, reward redemption, streaks, and the tasks and appliances CRUD. The component tests are mostly a teammate's.
 
 <TerminalWindow title="pw1-eco-tracker" lines={[
   '$ npx vitest run src/stores',
