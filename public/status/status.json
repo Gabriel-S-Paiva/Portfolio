@@ -1,0 +1,1 @@
+{"generatedAt":1760443200,"host":{"load1":0.42,"mem_used_pct":61,"uptime_s":1209600},"services":[{"name":"portfolio","state":"up","uptime":"3 days"},{"name":"gateway","state":"up","uptime":"3 days"},{"name":"cloud · proxy","state":"up","uptime":"3 days"}]}
