@@ -5,6 +5,7 @@ role: "Pinia stores, admin dashboard & store tests · team of 3"
 stack: ["Vue 3", "Pinia", "Tailwind CSS", "Vitest", "json-server"]
 repoUrl: "https://github.com/Gabriel-S-Paiva/pw1-eco-tracker"
 commit: 'git commit -m "feat: b.green"'
+shot: /assets/projects/bgreen.webp
 order: -1
 featured: false
 ---

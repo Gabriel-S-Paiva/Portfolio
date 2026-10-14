@@ -5,6 +5,7 @@ role: "Platformer phase: physics, collisions, camera, level · team of 2"
 stack: ["JavaScript", "Canvas API", "HTML5", "CSS"]
 repoUrl: "https://github.com/Gabriel-S-Paiva/Arcadia"
 commit: 'git commit -m "feat: arcadia"'
+shot: /assets/projects/arcadia.webp
 order: 0
 featured: false
 ---

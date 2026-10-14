@@ -5,6 +5,7 @@ role: "Solo"
 stack: ["Three.js", "Rapier", "Web Audio API", "Vite"]
 repoUrl: "https://github.com/Gabriel-S-Paiva/cg-threejs"
 commit: 'git commit -m "feat: cg-threejs"'
+shot: /assets/projects/cg-threejs.webp
 order: -2
 featured: false
 ---
