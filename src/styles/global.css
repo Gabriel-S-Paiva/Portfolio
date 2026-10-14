@@ -12,6 +12,7 @@
   --dimmer: #7a8292;
   --brass: #c99a5b;
   --green: #6fcf97;
+  --red: #e07a62;
   --font-body: 'Geist Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
   --font-display: var(--font-body);
   --font-mono: 'Geist Mono Variable', ui-monospace, 'SF Mono', Consolas, monospace;
@@ -38,6 +39,7 @@
   --dimmer: #6b6a5f;
   --brass: #a9762f;
   --green: #2f8f5c;
+  --red: #b4432c;
 }
 
 body {
