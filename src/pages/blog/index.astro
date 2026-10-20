@@ -1,36 +1,79 @@
 ---
-import { getCollection } from 'astro:content';
 import EmptyPage from '../../components/EmptyPage.astro';
 import Layout from '../../layouts/Layout.astro';
 import Nav from '../../components/Nav.svelte';
 import Footer from '../../components/Footer.svelte';
+import { getPosts, isoDay, readingMinutes } from '../../lib/blog';
 
-// Drafts are visible in `astro dev` only.
-const posts = (await getCollection('blog', (e) => import.meta.env.DEV || !e.data.draft))
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const posts = await getPosts();
+
+// Group by the year the post is about, newest year first (posts are already sorted).
+const years = [...new Set(posts.map((p) => p.data.date.getUTCFullYear()))];
+const byYear = years.map((year) => ({ year, items: posts.filter((p) => p.data.date.getUTCFullYear() === year) }));
+const dayMonth = new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', timeZone: 'UTC' });
 ---
 
 {posts.length === 0 ? (
   <EmptyPage title="Blog" heading="Blog" />
 ) : (
-  <Layout title="Blog | Gabriel Paiva" description="Notes on backend work and self-hosting.">
+  <Layout title="Blog | Gabriel Paiva" description="Notes from building things: projects, hackathons, events and the server that runs it all.">
     <Nav client:load current={Astro.url.pathname} />
     <main class="max-w-[900px] mx-auto px-7 pt-14 md:pt-20 pb-10 min-h-[60dvh]">
-      <h1 class="t-h1">Blog</h1>
-      <ul class="mt-10 space-y-8 max-w-[680px]">
-        {posts.map((post) => (
-          <li>
-            <a href={`/blog/${post.id}`} class="group block no-underline">
-              <p class="font-[family-name:var(--font-mono)] t-caption text-[var(--dimmer)]">
-                {post.data.date.toISOString().slice(0, 10)}{post.data.draft && ' · draft'}
-              </p>
-              <h2 class="t-h2 text-[var(--text)] group-hover:text-[var(--brass)] transition-colors">{post.data.title}</h2>
-              <p class="mt-2 t-small text-[var(--dim)]">{post.data.summary}</p>
-            </a>
-          </li>
-        ))}
-      </ul>
+      <header class="max-w-[680px]">
+        <h1 class="t-h1">Blog</h1>
+        <p class="mt-5 t-lead text-[var(--dim)]">Notes from building things: what went wrong, what I'd do again, and the events in between.</p>
+      </header>
+
+      {byYear.map(({ year, items }) => (
+        <section aria-labelledby={`y-${year}`} class="mt-14">
+          <h2 id={`y-${year}`} class="font-[family-name:var(--font-mono)] t-caption text-[var(--dim)]">
+            {year} <span class="text-[var(--dimmer)]">({items.length})</span>
+          </h2>
+          <ol class="log mt-4">
+            {items.map((post) => (
+              <li class="entry">
+                <a href={`/blog/${post.id}`} class="group grid sm:grid-cols-[5.5rem_1fr] gap-x-6 gap-y-1 py-6 no-underline">
+                  <time datetime={isoDay(post.data.date)} class="font-[family-name:var(--font-mono)] t-caption text-[var(--dimmer)] tabular pt-1.5">
+                    {dayMonth.format(post.data.date)}
+                  </time>
+                  <div class="min-w-0">
+                    <h3 class="text-[1.1875rem] leading-snug font-semibold tracking-[-0.01em] text-[var(--text)] group-hover:text-[var(--brass)] transition-colors">
+                      {post.data.title}
+                    </h3>
+                    <p class="mt-2 t-small text-[var(--dim)] max-w-[60ch]">{post.data.summary}</p>
+                    <p class="mt-3 flex flex-wrap items-center gap-1.5 font-[family-name:var(--font-mono)] t-micro text-[var(--dimmer)]">
+                      <span class="mr-1.5">{readingMinutes(post.body)} min read</span>
+                      {post.data.draft && <span class="text-[var(--brass)] mr-1.5">draft</span>}
+                      {post.data.tags.slice(0, 4).map((t) => (
+                        <span class="text-[var(--green)] bg-[#6fcf9714] border border-[#6fcf9730] px-2 py-0.5 rounded">{t}</span>
+                      ))}
+                    </p>
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
     </main>
     <Footer />
   </Layout>
 )}
+
+<style>
+  /* A quiet commit-log rail: one dot per post, brass on hover. */
+  .log { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .entry { position: relative; border-bottom: 1px solid var(--line); }
+  @media (min-width: 640px) {
+    .log { border-top: 0; border-left: 1px solid var(--line); margin-left: .25rem; }
+    .entry { border-bottom: 0; padding-left: 1.75rem; }
+    .entry::before {
+      content: ''; position: absolute; left: -5px; top: 2.05rem;
+      width: 9px; height: 9px; border-radius: 50%;
+      background: var(--bg); border: 1.5px solid var(--dimmer);
+      transition: border-color .2s ease, background-color .2s ease;
+    }
+    .entry:hover::before { border-color: var(--brass); background: var(--brass); }
+  }
+  @media (prefers-reduced-motion: reduce) { .entry::before { transition: none; } }
+</style>

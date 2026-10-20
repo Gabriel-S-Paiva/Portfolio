@@ -1,0 +1,92 @@
+---
+import Layout from './Layout.astro';
+import Nav from '../components/Nav.svelte';
+import Footer from '../components/Footer.svelte';
+import { formatDay, formatMonth, isoDay, readingMinutes, type Post } from '../lib/blog';
+
+interface Props {
+  entry: Post;
+  newer?: Post;
+  older?: Post;
+}
+const { entry, newer, older } = Astro.props;
+const { title, summary, date, written, tags, draft } = entry.data;
+const minutes = readingMinutes(entry.body);
+// Only call out the writing date when it is in a different month from the event.
+const lookingBack = written && formatMonth(written) !== formatMonth(date);
+---
+
+<Layout title={`${title} | Gabriel Paiva`} description={summary}>
+  <Nav client:load current="/blog" />
+
+  <main class="max-w-[900px] mx-auto px-7 pt-16 pb-10">
+    <a href="/blog" class="font-[family-name:var(--font-mono)] text-xs text-[var(--dim)] no-underline hover:text-[var(--brass)] transition-colors">← Blog</a>
+
+    <header class="post-head mt-8 max-w-[680px]">
+      <p class="font-[family-name:var(--font-mono)] t-caption text-[var(--dimmer)] flex flex-wrap gap-x-3 gap-y-1">
+        <time datetime={isoDay(date)}>{formatDay(date)}</time>
+        <span aria-hidden="true">·</span>
+        <span>{minutes} min read</span>
+        {draft && <><span aria-hidden="true">·</span><span class="text-[var(--brass)]">draft</span></>}
+      </p>
+      <h1 class="t-h1 mt-4">{title}</h1>
+      <p class="mt-5 t-lead text-[var(--dim)]">{summary}</p>
+
+      {(tags.length > 0 || lookingBack) && (
+        <div class="mt-6 flex flex-wrap items-center gap-1.5">
+          {lookingBack && (
+            <span class="font-[family-name:var(--font-mono)] t-micro text-[var(--brass)] bg-[#c99a5b15] border border-[#c99a5b30] px-2 py-0.5 rounded">
+              written {formatMonth(written!)}, looking back
+            </span>
+          )}
+          {tags.map((t) => (
+            <span class="font-[family-name:var(--font-mono)] t-micro text-[var(--green)] bg-[#6fcf9714] border border-[#6fcf9730] px-2 py-0.5 rounded">{t}</span>
+          ))}
+        </div>
+      )}
+    </header>
+
+    <article class="study post mt-12 max-w-[680px]">
+      <slot />
+    </article>
+
+    {(newer || older) && (
+      <nav aria-label="More posts" class="mt-20 pt-8 border-t border-[var(--line)] grid sm:grid-cols-2 gap-4 max-w-[680px]">
+        {older ? (
+          <a href={`/blog/${older.id}`} class="group block no-underline rounded-xl border border-[var(--line)] bg-[var(--surface)] p-5 transition-colors hover:border-[var(--brass)]">
+            <span class="font-[family-name:var(--font-mono)] t-micro text-[var(--dimmer)]">← Older</span>
+            <span class="mt-2 block t-small font-semibold text-[var(--text)] group-hover:text-[var(--brass)] transition-colors">{older.data.title}</span>
+          </a>
+        ) : <span />}
+        {newer && (
+          <a href={`/blog/${newer.id}`} class="group block no-underline rounded-xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:text-right transition-colors hover:border-[var(--brass)]">
+            <span class="font-[family-name:var(--font-mono)] t-micro text-[var(--dimmer)]">Newer →</span>
+            <span class="mt-2 block t-small font-semibold text-[var(--text)] group-hover:text-[var(--brass)] transition-colors">{newer.data.title}</span>
+          </a>
+        )}
+      </nav>
+    )}
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  /* Long-form reading: slightly larger body than case studies, windows may break out wider on desktop. */
+  .post { font-size: 1.0625rem; line-height: 1.75; }
+  .post :global(> p:first-child) { color: var(--text); }
+  .post :global(blockquote) {
+    margin-inline: 0; padding: .25rem 0 .25rem 1.25rem;
+    border-left: 2px solid var(--brass); color: var(--text);
+  }
+  /* Direct children only, so component lists (pipelines, timelines) keep their own styling. */
+  .post :global(> ol) { list-style: decimal; padding-left: 1.4rem; }
+  .post :global(> ol > li + li) { margin-top: .35rem; }
+  .post :global(> ol > li::marker),
+  .post :global(> ul > li::marker) { color: var(--dimmer); }
+  @media (min-width: 900px) {
+    .post :global(> figure),
+    .post :global(> dl),
+    .post :global(> aside) { margin-inline: 0 -164px; }
+  }
+</style>

@@ -1,0 +1,86 @@
+---
+title: "Learning Go by building a family cloud: highlights from a 25-entry devlog"
+summary: "I came from Node and Express and wanted to learn Go and SvelteKit by shipping something real. The devlog tells the story: the wrong turns, the Go moments, and an honest verdict from the people who used it."
+date: 2026-09-18
+written: 2026-10-20
+tags: [go, sveltekit, self-hosting, devlog]
+draft: true
+---
+import Facts from '../../components/study/Facts.astro';
+import Compare from '../../components/study/Compare.astro';
+import Timeline from '../../components/study/Timeline.astro';
+import CodeWindow from '../../components/study/CodeWindow.astro';
+import deleteFile from '../../assets/blog/owned-cloud-devlog/delete-file.go?raw';
+
+{/*
+  DRAFT. Sources: context/2026-09-owned-cloud-devlog.md (Gabi), and the Cloud repo: DEVLOG.md (25 "Day" entries),
+  git history (116 commits, 8 Jul to 18 Sep 2026), commit 700b070 for the delete fix.
+  Fact-check changes vs the source draft:
+  - Day 6: the devlog says Go middleware "feels very clean once it clicks", not that it took a day to feel natural.
+  - The delete bug was fixed on 9 Aug (700b070), three days after the Docker commit (6 Aug). The fix sentence is from that diff.
+  TODO (Gabi): one sentence on how you noticed the leftover bytes.
+*/}
+
+The project ran from 8 July to 18 September 2026. There's a full [case study](/showcase/owned-cloud) with the architecture and code. This post is the other side: what it felt like.
+
+I kept a devlog for Owned Cloud, and it ended up at 25 entries over about ten weeks and 116 commits. Reading it back, the interesting parts aren't the features. They're the moments where my brain had to change shape.
+
+<Facts items={[
+  { label: 'Built', value: '8 Jul to 18 Sep 2026' },
+  { label: 'Devlog', value: '25 entries' },
+  { label: 'Commits', value: '116' },
+  { label: 'Stack', value: 'Go, SQLite, SvelteKit, Docker' },
+]} />
+
+<Timeline title="devlog / the arc" items={[
+  { time: 'Day 1', label: 'Old hardware, five users', text: 'Go, SQLite, Svelte and Docker, picked to be light and to teach me something.' },
+  { time: 'Days 2 – 8', label: 'Unlearning Express', text: 'Pointers, middleware, NULLs and slices.' },
+  { time: 'Day 5', label: 'Sessions instead of JWT' },
+  { time: 'Days 11 – 12', label: 'Paper wireframes and a plan', text: 'Raw functionality, then structure, then Tailwind.' },
+  { time: 'Day 20', label: 'Feature freeze', accent: true },
+  { time: 'Days 21 – 22', label: 'Real machine, real bugs', text: 'Docker, LAN deploy, hotfixes.' },
+  { time: 'Days 23 – 25', label: 'From "it works" to "I\'d trust it"', text: 'Linting, tests, CI/CD, branch protection, pre-commit hooks.' },
+]} />
+
+## Day 1: old hardware and five users
+
+The idea was small on purpose: a drive for my family, about five users, running on hardware I already had. I picked Go for the backend, SQLite for the database, Svelte for the frontend and Docker to ship it.
+
+The first entry also mentions DuckDNS and Cloudflare. I dropped one and deferred the other, so Owned Cloud launched on the local network only.
+
+## Coming from Express
+
+I knew Node and Express well. Go made me unlearn a few things, and the devlog keeps the receipts:
+
+<Compare title="devlog / express → go" left="In Node and Express" right="In Go" rows={[
+  { topic: 'Day 2 · requests', left: 'The request is just an object passed to the handler.', right: 'The handler takes a `*http.Request`. A pointer in a function signature felt very strange at first.' },
+  { topic: 'Day 6 · middleware', left: 'Middleware calls `next()`.', right: 'Middleware takes a handler and returns a handler, then calls `next.ServeHTTP(w, r)`. Plain function composition, and very clean once it clicked.' },
+  { topic: 'Day 7 · NULL', left: 'A missing parent is just `null`.', right: 'Scanning a `NULL` parent ID into an `int64` fails at runtime. That is what `sql.NullInt64` is for.' },
+  { topic: 'Day 8 · slices', left: 'Slicing an array gives you a copy.', right: 'Slicing a slice shares the same underlying array, so changing one can quietly change the other.' },
+]} />
+
+## Sessions instead of JWT
+
+My default was JWT. On Day 5 I stopped to ask what JWT actually buys you: no database lookup per request. For five users on a local machine, that lookup costs nothing, and as soon as you add refresh tokens you're touching the database anyway. So I used server-side sessions, which are also trivially easy to revoke. JWT is still on the roadmap for a mobile client, where it would earn its place.
+
+## The detour, and the plan
+
+On Day 12 I spent most of the day rescuing old photos from a tablet before it died, a detour that had nothing to do with the code. I'd wireframed the dashboard on paper the day before, and that's when I set the plan for the frontend: raw functionality first, then structure, then Tailwind last. Doing all three at once is how you end up rewriting.
+
+## Getting it onto a real machine
+
+Days 21 and 22 are where the project met reality. I containerised it, deployed it to the home server and used it over the local network. Almost immediately it broke in ways my laptop never showed: CORS headers, file paths and the way uploads stream in. I hotfixed the live containers, which is not a workflow I'd recommend, but it's what happened.
+
+One bug from that same week I'd tell at a bar: deleting a file gave the quota back but left the bytes on disk. Refunding the quota isn't the same as freeing the space. The fix was to remove the file from disk after the database transaction commits, and to treat "it was never there" as fine.
+
+<CodeWindow file="backend/storage/files.go" lang="go" href="https://github.com/Gabriel-S-Paiva/Cloud/blob/700b0703aedfbbbbbaebeea04f872961451606e5/backend/storage/files.go#L169-L204" caption="DeleteFile after the fix (9 Aug 2026). Before it, the function ended at tx.Commit(): the row and the quota were handled, the file on disk was not." code={deleteFile} />
+
+## From "it works" to "I'd trust it"
+
+Once the features were frozen, I spent the last stretch treating it like production software. Linting, formatting, Go tests and Vitest, a self-hosted CI runner on my own network that deploys on merge, protected `main`, and pre-commit hooks so formatting mistakes never reach CI. The server doesn't need to be reachable from the internet for any of that to work, because the runner calls out to GitHub, not the other way round.
+
+## The honest verdict
+
+The family used it. But it's web-only, which turned out to be less practical than I'd hoped for everyday use, so in practice it mostly ended up holding a few backups. The frontend UI and UX are the weakest part, and I know it. The rest of the roadmap is the boring kind: keep growing it, and move it to better hardware when I can.
+
+The point of the project was to learn a stack by shipping something real, and it did that. If you want the architecture, it's in the [case study](/showcase/owned-cloud). If you want the full story, the devlog is in the [repository](https://github.com/Gabriel-S-Paiva/Cloud/blob/main/DEVLOG.md).

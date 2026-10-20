@@ -1,0 +1,81 @@
+---
+title: "Legacy, part 1: how we won a one-day hackathon (and why it isn't over)"
+summary: "A pen-and-paper morning, a four-hour build and a frontend-only pitch won us first place at the TeamGreen4All hackathon. Here's how the day went and what I owned."
+date: 2026-05-07
+written: 2026-10-20
+tags: [hackathon, data-modeling, sqlite, teamwork]
+draft: true
+---
+import Facts from '../../components/study/Facts.astro';
+import Timeline from '../../components/study/Timeline.astro';
+import Flow from '../../components/study/Flow.astro';
+
+{/*
+  DRAFT. Source: context/2026-05-legacy-part-1.md (Gabi).
+  Cross-checked with a teammate's public journal post: 7 May 2026, Campus 2 in Vila do Conde, run by the 4BEST project of
+  P.Porto's social action services with the Eco-Escolas projects of ESMAD and ESHT, team of five, 1st place, a no-tech
+  ideation phase followed by an AI-allowed build phase. Gabi's role matches CLAUDE.md (ER diagram -> SQLite, backend sketch).
+  Not independently verified: the exact hours, the prize money.
+  TODO (Gabi): a photo from the prize moment. The teammate's post has photos; ask before reusing one.
+*/}
+
+On 7 May 2026, my team won first place at the TeamGreen4All hackathon, run under the 4BEST project by the social action services of the Politécnico do Porto, together with the Eco-Escolas projects of ESMAD and ESHT. It took place at Campus 2 in Vila do Conde, and we were a team of five from my degree.
+
+We built **Legacy**: a social platform that pairs the UN's 17 Sustainable Development Goals with a personal bucket list. This post is how the day went. It isn't the end of the story, but more on that at the bottom.
+
+<Facts items={[
+  { label: 'Event', value: 'TeamGreen4All hackathon' },
+  { label: 'When', value: '7 May 2026, one day' },
+  { label: 'Where', value: 'Campus 2, Vila do Conde' },
+  { label: 'Team', value: 'Five, same degree' },
+  { label: 'Result', value: '1st place' },
+]} />
+
+## The day, hour by hour
+
+The format was fixed, and it was more interesting than I expected:
+
+<Timeline title="teamgreen4all / 7 may 2026" items={[
+  { time: '09:00 – 11:00', label: 'Lectures on the goals', text: 'No laptops, no phones, no AI.' },
+  { time: '11:00 – 13:00', label: 'Lock the idea', text: 'Still pen and paper.' },
+  { time: '13:00 – 14:00', label: 'Lunch' },
+  { time: '14:00 – 18:00', label: 'Build', text: 'Everything allowed, AI included. Four hours to make the paper idea demoable.', accent: true },
+]} caption="The rules flipped at lunch." />
+
+The twist was the morning. Everything was pen and paper. Then after lunch the rules flipped: everything was allowed, AI included. Four hours to turn a paper idea into something you could demo.
+
+Before building, every team had to send in a proposal. At the end, the jury compared what we'd actually built with what we'd said we would build. The criteria weren't fully spelled out, so other things surely played in too.
+
+## Where the idea came from
+
+The goals came from two places: the opening lectures and the curricular unit sheets of our own degree, where the goals are listed per course. Having them in front of us twice in one morning is probably why they stuck.
+
+The idea we locked: pick a goal, build a list of real-world activities tied to it, complete them with photo proof, and earn a badge for each goal. A bucket list, but one that actually does something.
+
+## Who did what
+
+We started with the usual split: backend, frontend, design, and two people to support the others. It didn't survive the afternoon. We swapped roles so much that by the end everyone had touched everything.
+
+What I ended up owning was the **data model**. I drew the full ER diagram and translated it into SQLite. I picked SQLite because we needed a database with almost no setup for a very small amount of data, and four hours doesn't leave room for configuring anything else. The interesting parts of the model were a self-referencing follow relationship (users following users) and the structure behind badges, lists and activity completions.
+
+I also sketched the backend structure in an MVC layout. That sketch was never connected to the database in the time we had. Meanwhile the rest of the team scaffolded the frontend from templates and picked the tools around it.
+
+## The pitch
+
+Because of that, our demo ended up being **frontend-only**. The pitch was a walkthrough of the interface, plus an explanation of our process and of what the platform would become.
+
+So the jury saw a frontend with no real backend behind it, and we won anyway. My read, not the jury's, is that the idea and the way we got there counted as much as the code. The winner was simply announced at the end, with no feedback attached.
+
+First prize was a certificate and prize money split across the team.
+
+## What I took from it
+
+<Flow title="lessons / legacy, day one" steps={[
+  { label: 'Spend the morning on the idea.', text: 'The no-laptops rule forced us to argue properly before building. I would do that voluntarily next time.' },
+  { label: 'Do the data model first.', text: 'Once the shape of the data was settled, everyone else could scaffold in parallel.' },
+  { label: 'Be honest about scope in the pitch.', text: 'We showed what existed and explained what did not.' },
+]} />
+
+## This isn't where it ends
+
+The win wasn't the end of Legacy. The idea is coming back in a much bigger form, and I'll tell that part when it's further along.

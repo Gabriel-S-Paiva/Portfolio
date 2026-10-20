@@ -1,0 +1,47 @@
+---
+import Window from './Window.astro';
+
+// Time-stamped steps on a rail (an event schedule, a day in phases). Text only.
+interface Props {
+  title: string;
+  items: { time: string; label: string; text?: string; accent?: boolean }[];
+  caption?: string;
+}
+const { title, items, caption } = Astro.props;
+---
+
+<Window title={title} caption={caption}>
+  <ol class="timeline">
+    {items.map((i) => (
+      <li class:list={{ accent: i.accent }}>
+        <span class="time">{i.time}</span>
+        <span class="dot" aria-hidden="true"></span>
+        <div><strong>{i.label}</strong>{i.text && <span>{i.text}</span>}</div>
+      </li>
+    ))}
+  </ol>
+</Window>
+
+<style>
+  .timeline { list-style: none; margin: 0; padding: 1.25rem 1rem; display: grid; }
+  li { position: relative; display: grid; grid-template-columns: 7.5rem 1rem 1fr; gap: .75rem; align-items: start; padding-bottom: 1rem; }
+  li:last-child { padding-bottom: 0; }
+  /* rail between dots */
+  li:not(:last-child)::after {
+    content: ''; position: absolute; left: calc(7.5rem + .75rem + .5rem - .5px); top: 1rem; bottom: 0;
+    width: 1px; background: var(--line);
+  }
+  .time { font-family: var(--font-mono); font-size: 12px; line-height: 1.7; color: var(--dimmer); white-space: nowrap; }
+  .dot { margin-top: .4rem; width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--dimmer); background: var(--surface-2); justify-self: center; }
+  .accent .dot { border-color: var(--brass); background: var(--brass); }
+  .accent .time { color: var(--brass); }
+  strong { display: block; font-size: 14px; color: var(--text); font-weight: 600; line-height: 1.5; }
+  div span { display: block; font-size: 13.5px; line-height: 1.55; color: var(--dim); }
+  @media (max-width: 520px) {
+    li { grid-template-columns: 1rem 1fr; }
+    .time { grid-column: 2; }
+    .dot { grid-row: 1; grid-column: 1; }
+    div { grid-column: 2; }
+    li:not(:last-child)::after { left: calc(.5rem - .5px); }
+  }
+</style>

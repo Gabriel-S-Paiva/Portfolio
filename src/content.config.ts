@@ -75,7 +75,11 @@ const blog = defineCollection({
   schema: z.object({
     title: z.string(),
     summary: z.string(),
+    // When the thing the post is about happened.
     date: z.coerce.date(),
+    // When the post was written, if later than `date` (posts written looking back).
+    written: z.coerce.date().optional(),
+    tags: z.array(z.string()).default([]),
     // Drafts render only in `pnpm dev`; production builds skip them.
     draft: z.boolean().default(true),
   }),
