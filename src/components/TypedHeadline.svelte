@@ -4,7 +4,7 @@
   type Segment = { text: string; emphasis?: boolean };
   let { segments, class: className = '' }: { segments: Segment[]; class?: string } = $props();
 
-  let spans: HTMLElement[] = [];
+  let spans = $state<HTMLElement[]>([]);
 
   onMount(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
