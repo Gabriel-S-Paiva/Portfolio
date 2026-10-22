@@ -1,0 +1,6 @@
+[Unit]
+Description=Write the portfolio hero status file
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 %h/bin/status.py
