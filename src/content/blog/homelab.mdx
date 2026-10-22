@@ -3,7 +3,7 @@ title: "I turned a dusty school laptop into my server (and the network was the h
 summary: "A laptop bought for online school sat unused for four years. Now it runs my projects. This is how it got there, what broke along the way, and what's still missing."
 date: 2026-10-20
 tags: [homelab, docker, caddy, ci-cd, tailscale, linux]
-draft: true
+draft: false
 ---
 import Facts from '../../components/study/Facts.astro';
 import Flow from '../../components/study/Flow.astro';
@@ -18,7 +18,7 @@ import Ledger from '../../components/study/Ledger.astro';
   on push to main (.github/workflows/deploy.yml here; Cloud's CI runs checks on PRs).
   Fact-check changes vs the source draft:
   - "PR + checks" is true for Owned Cloud; the portfolio workflow only deploys. The pipeline says so.
-  - The status panel now exists in code (StatusPanel.svelte + ops/status/status.py, a cron job). It reports, it doesn't alert,
+  - The status panel now exists in code (StatusPanel.svelte + ops/status/status.py, a systemd user timer). It reports, it doesn't alert,
     so "monitoring: nothing yet" still stands. Rewritten accordingly.
   Not verifiable from code (Gabi's own account): the laptop's history, the Wi-Fi setup, the router blocking SSH, Tailscale.
 */}
@@ -98,7 +98,7 @@ I'd rather you hear this from me:
 
 <Ledger title="status / homelab" items={[
   { state: 'done', text: 'Two projects running in Docker Compose behind one gateway, deployed automatically on merge.' },
-  { state: 'done', text: 'A small live status panel for the homepage: a cron job on the server writes which containers are up, and the page reads it.' },
+  { state: 'done', text: 'A small live status panel for the homepage: a systemd timer on the server writes which containers are up, and the page reads it.' },
   { state: 'gap', text: 'Backups: nothing is implemented yet.' },
   { state: 'gap', text: 'Monitoring: the status panel shows what is up, but nothing alerts anyone when something goes down.' },
   { state: 'planned', text: 'Public access: claim a domain and put a Cloudflare Tunnel in front. That is the current plan, not a final decision.' },

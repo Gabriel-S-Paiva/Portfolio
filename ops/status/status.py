@@ -12,8 +12,8 @@ OUT = os.path.expanduser("~/Portfolio/status/status.json")
 SERVICES = {  # container name -> label shown on the site
     "portfolio-app": "portfolio",
     "gateway-caddy": "gateway",
-    "cloud-web": "cloud · proxy",
-    # TODO: add the Cloud Go backend container once its name is confirmed.
+    "cloud-caddy-1": "cloud · proxy",
+    "cloud-backend-1": "cloud · api",
 }
 
 
