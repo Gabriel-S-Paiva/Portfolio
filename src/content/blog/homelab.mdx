@@ -1,0 +1,112 @@
+---
+title: "I turned a dusty school laptop into my server (and the network was the hard part)"
+summary: "A laptop bought for online school sat unused for four years. Now it runs my projects. This is how it got there, what broke along the way, and what's still missing."
+date: 2026-10-20
+tags: [homelab, docker, caddy, ci-cd, tailscale, linux]
+draft: true
+---
+import Facts from '../../components/study/Facts.astro';
+import Flow from '../../components/study/Flow.astro';
+import HomelabMap from '../../components/study/HomelabMap.astro';
+import Pipeline from '../../components/study/Pipeline.astro';
+import Ledger from '../../components/study/Ledger.astro';
+
+{/*
+  DRAFT. Source: context/2026-10-homelab.md (Gabi). Kept private until published on purpose (see CLAUDE.md).
+  Checked against this repo and the Cloud repo: specs, one Compose project per site, gateway Caddy routing by hostname,
+  portfolio = static Astro build on nginx:alpine, Cloud = its own Caddy with /api to Go + SQLite, self-hosted runner deploys
+  on push to main (.github/workflows/deploy.yml here; Cloud's CI runs checks on PRs).
+  Fact-check changes vs the source draft:
+  - "PR + checks" is true for Owned Cloud; the portfolio workflow only deploys. The pipeline says so.
+  - The status panel now exists in code (StatusPanel.svelte + ops/status/status.py, a cron job). It reports, it doesn't alert,
+    so "monitoring: nothing yet" still stands. Rewritten accordingly.
+  Not verifiable from code (Gabi's own account): the laptop's history, the Wi-Fi setup, the router blocking SSH, Tailscale.
+*/}
+
+This is the story of the machine that runs my projects: this portfolio, my self-hosted cloud, and the CI that deploys them. It's a story and not a tutorial, and everything identifying (addresses, hostnames, ports) is left out on purpose.
+
+## Where it came from
+
+The laptop was an old Teclast. It had been bought for my brother's online school, mostly for two reasons the school cared about: the screen size and the battery life. The hardware aged badly. It was outdated almost immediately, and then it spent about four years collecting dust.
+
+When I wanted a place to host my own projects, it was sitting right there. I'll be upfront: it is a weak machine. I didn't pick it, it was just the one I had.
+
+<Facts items={[
+  { label: 'Machine', value: 'Teclast F15S laptop' },
+  { label: 'CPU / RAM', value: 'Celeron N4020, 6 GB' },
+  { label: 'Storage', value: '128 GB' },
+  { label: 'Network', value: 'Wi-Fi only, no Ethernet port' },
+  { label: 'OS', value: 'Ubuntu Server, minimized' },
+]} />
+
+## The hardware chose my software
+
+I don't have benchmarks, so I won't pretend this is a performance story. The claim is about choices. With a machine like that, I picked tools that don't ask for much:
+
+- **Go** for the backend, because it compiles to a small, fast binary.
+- **SQLite** instead of a database server, so there's one less thing eating RAM.
+- **Astro** for the portfolio, so the site is static files served by a tiny web server.
+
+Those were all software decisions. I didn't tune the hardware or measure anything. I just stopped choosing things the machine couldn't comfortably run.
+
+## Getting it online was the real project
+
+The missing Ethernet port decided how setup began. Before I could SSH into the machine even once, I had to configure Wi-Fi from scratch in a way that would also reconnect after a restart. I was learning Linux at the same time, on a server that couldn't reach the network until I'd gotten it right.
+
+Then the network fought back:
+
+<Flow title="network / what went wrong, in order" steps={[
+  { label: 'The move', text: 'I had to move the laptop from a Wi-Fi repeater to the main router, and the connection got flaky.' },
+  { label: 'The crashes', text: 'The network card started crashing, which I put down to the weak hardware.' },
+  { label: 'The ban', text: 'After that, the router started blocking SSH over the local network.' },
+]} />
+
+The fix for the last one was Tailscale. My dev machine and the server now sit on the same private network, and I connect over that, so SSH no longer depends on the router being in a good mood.
+
+<Pipeline title="access / how I reach it" steps={[
+  { label: 'Dev machine', dashed: true },
+  { label: 'Tailscale', note: 'private network' },
+  { label: 'SSH to the server', accent: true },
+]} />
+
+The lesson I took from this is that almost nothing that went wrong was about my code. It was networking, from start to finish.
+
+## What runs on it
+
+Everything is a Docker Compose project. The portfolio is one, the cloud is another, and a small gateway sits in front of both and decides where traffic goes.
+
+<HomelabMap caption="The gateway first routed by port and now routes by hostname. Addresses and ports are left out on purpose." />
+
+If you're curious about why the cloud's login works over plain HTTP on a home network, that's the single-origin setup, which I explain in the [Owned Cloud case study](/showcase/owned-cloud).
+
+### Deploys
+
+Both projects deploy the same way. A GitHub Actions runner lives on the server itself:
+
+<Pipeline title="deploy / push to running" steps={[
+  { label: 'git push', note: 'from a branch', dashed: true },
+  { label: 'Pull request', note: 'Owned Cloud runs lint and tests here' },
+  { label: 'Merge to main' },
+  { label: 'Runner on the server', note: 'pulls, rebuilds, restarts the containers', accent: true },
+]} />
+
+The detail I like most: the server never has to be reachable from the internet for this to work. The runner makes outbound connections to GitHub, not the other way round. The drawback is that builds happen on that tiny CPU, so they're slow.
+
+## What's still missing
+
+I'd rather you hear this from me:
+
+<Ledger title="status / homelab" items={[
+  { state: 'done', text: 'Two projects running in Docker Compose behind one gateway, deployed automatically on merge.' },
+  { state: 'done', text: 'A small live status panel for the homepage: a cron job on the server writes which containers are up, and the page reads it.' },
+  { state: 'gap', text: 'Backups: nothing is implemented yet.' },
+  { state: 'gap', text: 'Monitoring: the status panel shows what is up, but nothing alerts anyone when something goes down.' },
+  { state: 'planned', text: 'Public access: claim a domain and put a Cloudflare Tunnel in front. That is the current plan, not a final decision.' },
+  { state: 'planned', text: 'Hardware: a used mini PC to replace the laptop. Builds on the Celeron are the main pain.' },
+]} />
+
+The status panel will get its own write-up.
+
+## What this says about how I work
+
+I treat infrastructure as part of the project, not as something someone else sets up. I got a machine from nothing to serving real projects, I debugged problems that had nothing to do with my own code, and I can tell you what's broken, what's missing and what comes next. I can't promise it's production-grade, but it's honest.

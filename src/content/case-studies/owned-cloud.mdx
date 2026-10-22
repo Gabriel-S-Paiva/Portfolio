@@ -1,0 +1,193 @@
+---
+title: "Owned Cloud"
+summary: "A self-hosted family cloud drive running on my own home server. I built the Go backend and the SvelteKit frontend alone, as a way to learn a new stack by shipping something real."
+project: "owned-cloud"
+order: 2
+draft: true
+---
+import ShotWindow from '../../components/study/ShotWindow.astro';
+import CodeWindow from '../../components/study/CodeWindow.astro';
+import TerminalWindow from '../../components/study/TerminalWindow.astro';
+import Facts from '../../components/study/Facts.astro';
+import Flow from '../../components/study/Flow.astro';
+import BugCard from '../../components/study/BugCard.astro';
+import BugLog from '../../components/study/BugLog.astro';
+import Ledger from '../../components/study/Ledger.astro';
+import Architecture from '../../components/study/Architecture.astro';
+import driveList from '../../assets/case-studies/owned-cloud/drive-list.png';
+import driveShares from '../../assets/case-studies/owned-cloud/drive-shares.png';
+import landing from '../../assets/case-studies/owned-cloud/landing.png';
+// Code excerpts live in files and are imported raw: MDX strips indentation from multi-line attributes.
+import uploadIntent from '../../assets/case-studies/owned-cloud/code/upload-intent.go?raw';
+import appendChunk from '../../assets/case-studies/owned-cloud/code/append-chunk.go?raw';
+import sharesSql from '../../assets/case-studies/owned-cloud/code/shares.sql?raw';
+import rootFolder from '../../assets/case-studies/owned-cloud/code/root-folder.go?raw';
+
+{/*
+  DRAFT. Sources: the Cloud repo (README, DEVLOG.md, code, git history at 6a4843e) and the brief.
+  Every code excerpt is real and pinned to commit 6a4843e. Set draft: false when approved.
+*/}
+
+## What it is
+
+Owned Cloud is a private file drive for a family: folders, sharing with view or edit permissions, and a storage quota per person. It runs on a laptop in my home, so nobody else's server ever holds the files.
+
+I started it because I had old hardware that was too slow to be a main machine and too good to throw away, and because I wanted to learn Go and SvelteKit by building something I would actually use. I come from Node, Express and Vue. I designed the schema, API, auth, frontend and deployment myself, then spent the second half of the project treating it like production software: tests, CI, a security policy.
+
+<Facts items={[
+  { label: 'Role', value: 'Solo: backend, frontend, infra' },
+  { label: 'Status', value: 'v1.0.0, running on my home server' },
+  { label: 'Built', value: '8 Jul to 18 Sep 2026, 116 commits' },
+  { label: 'Stack', value: 'Go, SQLite, SvelteKit 5, Caddy, Docker Compose' },
+  { label: 'Reach', value: 'LAN only for now, HTTP' },
+]} />
+
+<ShotWindow src={landing} alt="Owned Cloud landing page: the headline 'Your files. Your server. Your rules.' beside a sample file list, with four feature notes below" title="owned cloud / landing page" caption="The landing page. The file list is sample content, not real data." />
+
+<ShotWindow src={driveList} alt="Owned Cloud drive: sidebar with Files, Shared With Me, Manage Shares, Profile and Admin, and a list of five folders and four files in the home folder" title="owned cloud / the drive" caption="The home folder in list view. Captured from a local run with demo data I seeded for the screenshot: the folders and files are placeholders, not my family's files." />
+
+<ShotWindow src={driveShares} alt="Manage Shares page listing two folders shared with another user, one with Edit permission and one with View" title="owned cloud / manage shares" caption="Manage Shares: each share has its own View or Edit permission and can be revoked. Same demo data." />
+
+## Why Go, and what I did differently from Express
+
+I built the Go backend on purpose without a framework. My DEVLOG has the moments where the model changed for me: Go middleware is a function that takes a handler and returns a handler, not a `next()` callback. A nullable foreign key is a `sql.NullInt64`, not a value you can scan into an int. A slice is a pointer, a length and a capacity, so slicing one does not copy it.
+
+The backend has three layers and one rule: HTTP handlers call the storage layer, and only the storage layer writes SQL. The router lives in its own file (`router.go`) so tests can build the whole app without starting a server.
+
+## How it runs
+
+The server is a repurposed Teclast F15S laptop (Celeron N4020, 6 GB of RAM, 128 GB of storage, Wi-Fi only) running Ubuntu Server. That shaped decisions early: a small compiled binary instead of a heavy runtime, SQLite instead of a database server, and builds I try not to run twice.
+
+<Architecture caption="One Docker Compose project, two containers, behind the shared gateway Caddy on the home server." />
+
+The part I would defend in an interview is the single origin. The frontend and the API are served from the same address, with Caddy stripping the `/api` prefix before it reaches Go. Because of that, the session cookie can stay `HttpOnly` without `SameSite=None; Secure`, which would need HTTPS. On a LAN over plain HTTP, that is the difference between a secure cookie and no login at all. I did not start with that idea. It came from not having a domain or TLS yet.
+
+## Decisions in the backend
+
+### Sessions, not JWT
+
+JWT was my default. Then I looked at what it buys you: no database lookup per request. For about five users on a local machine, that lookup costs nothing, and the moment you add refresh tokens you are checking the database anyway. So I used server-side sessions: a random token from `crypto/rand`, stored in a `Sessions` table and sent in an `HttpOnly` cookie. They are also trivial to revoke. Passwords are hashed with bcrypt. JWT is on the roadmap for a future mobile client, where it would actually earn its place.
+
+### Approval before access
+
+Sign-up does not create an account. It creates a row in `Requests`, and an admin approves it. Approval is one transaction, and it is also where each user gets their root folder.
+
+<CodeWindow file="backend/storage/users.go" lang="go" href="https://github.com/Gabriel-S-Paiva/Cloud/blob/6a4843eb25bcc5a096d90cea02055586673e4ab7/backend/storage/users.go#L84-L97" caption="Inside the approval transaction: create the user's root folder, point the user at it, delete the request. If any step fails, nothing happens." code={rootFolder} />
+
+I gave every user an explicit root folder row instead of treating "no parent" as the root. A null-parent root means every folder query needs a special case for it. A real row means a folder is a folder. It came out of a frontend conflict, not a plan: I had to change user creation after the first version.
+
+### Sharing that the database enforces
+
+A share points at either a file or a folder, never both and never neither. I put that rule in the schema, so a bug in a handler cannot create a half-valid share.
+
+<CodeWindow file="migration/005_user_root.sql" lang="sql" href="https://github.com/Gabriel-S-Paiva/Cloud/blob/6a4843eb25bcc5a096d90cea02055586673e4ab7/migration/005_user_root.sql#L44-L54" caption="Shares: two nullable columns and a CHECK that exactly one of them is set." code={sharesSql} />
+
+The access query joins `Shares` and returns the caller's permission as `Owner`, `View` or `Edit`. That is why the code has `FileAccess` and not just `FileOwnership`: someone with Edit permission can act on a file without being treated as its owner.
+
+### Uploads in two phases, with the quota reserved up front
+
+Uploading is split in two. First the client announces the file (name, size, type). The server checks the quota and records the file as `Uploading` in one transaction. Then the client sends the bytes, and the server appends them to a file on disk.
+
+<Flow title="upload / flow" steps={[
+  { label: 'Intent', text: 'POST /files with the name, size and type. The server checks quota_used + size against quota, inserts the row as Uploading, and adds the size to quota_used, all in one transaction. It returns the file id.' },
+  { label: 'Append', text: 'POST /files/{id}/chunk streams the request body onto the end of the file on disk with io.Copy. Only the owner can append, and only while the file is Uploading.' },
+  { label: 'Complete', text: 'When bytes received reaches the declared size, the status flips to Complete and the file can be downloaded.' },
+]} caption="Reserving the quota at the intent step means a user cannot start uploads they have no room for." />
+
+<CodeWindow file="backend/storage/files.go" lang="go" href="https://github.com/Gabriel-S-Paiva/Cloud/blob/6a4843eb25bcc5a096d90cea02055586673e4ab7/backend/storage/files.go#L28-L63" caption="CreateFileUploadIntent: check the quota, insert the file and reserve the space in one transaction." code={uploadIntent} />
+
+<CodeWindow file="backend/storage/files.go" lang="go" href="https://github.com/Gabriel-S-Paiva/Cloud/blob/6a4843eb25bcc5a096d90cea02055586673e4ab7/backend/storage/files.go#L67-L103" caption="AppendFileChunk: append to the file on disk, then update the progress and status." code={appendChunk} />
+
+I also added a sliding-window rate limiter as middleware: five requests per minute per client on login and on sign-up. It keys on the first `X-Forwarded-For` address, because behind two Caddy layers the socket address is always a proxy.
+
+## Treating a side project like production
+
+The first version worked, and I stopped adding features. Version 1.0.0 is the result of a review pass over the whole backend, then tests, then automation.
+
+- **Tests.** Storage-layer tests for the stores, integration tests that call the real router through `httptest`, tests for the rate limiter, and Vitest tests across the frontend stores and `api.ts`.
+- **CI.** On every pull request: `go vet`, `golangci-lint`, `govulncheck`, build and test for the backend; lint, type check, tests and build for the frontend. A frontend dependency audit runs too, but it does not block.
+- **Deploy.** A merge to `main` triggers a job on a self-hosted runner inside my network. It pulls, rebuilds and restarts the containers on the home server. The server never needs to be reachable from the internet for that to work.
+- **Workflow.** Protected `main`, pull requests from branches, Husky pre-commit hooks so formatting failures never reach CI, and Dependabot for Go, npm, Docker and Actions.
+- **Project files.** `SECURITY.md` with GitHub private vulnerability reporting, `CONTRIBUTING.md`, a code of conduct, and issue and pull request templates.
+
+Coverage is where I would rather be accurate than impressive. This is the real output from the repo at the commit this page links to:
+
+<TerminalWindow title="backend / go test -cover" lines={[
+  '$ cd backend && go test -cover ./...',
+  'ok  \tbackend\tcoverage: 88.1% of statements',
+  '\tbackend/handlers\t\tcoverage: 0.0% of statements',
+  'ok  \tbackend/middlewares\tcoverage: 41.2% of statements',
+  'ok  \tbackend/storage\tcoverage: 69.2% of statements',
+  '\tbackend/utils\t\tcoverage: 0.0% of statements',
+]} caption="Run at commit 6a4843e. The root package number comes from the HTTP integration tests, which go through the handlers without being counted as handler coverage. The handlers and utils packages have no tests of their own." />
+
+## The frontend
+
+I designed the interface like a vault ledger: moss green, brass, rust and a sage-white page, with Fraunces for headings, Public Sans for text and JetBrains Mono for numbers. The fonts are self-hosted so the app makes no third-party requests. Tailwind v4 is wired to plain CSS variables through `@theme inline`, so the palette is defined once and reused as utilities.
+
+There is one `FileItem` and one `FolderItem` component with list and grid variants, drag and drop to move things between folders (native HTML5 events), and Svelte 5 rune stores for the drive, navigation, shared items, auth and toasts.
+
+I learned the frontend in three phases on purpose, because I was learning Svelte at the same time: raw HTML first so the features worked, then the code organised into components, then Tailwind last. Doing all three at once is how you get a rewrite.
+
+## Bugs worth telling
+
+Five that taught me something. Open a row for the detail.
+
+<BugLog title="bug log / owned cloud" caption="In the order I hit them.">
+
+<BugCard n={1} area="Go and JSON" open title="An empty folder broke the UI"
+  lesson="An empty list and a missing list are different things across a language boundary."
+  symptom="The frontend broke on empty lists, such as a folder with nothing in it."
+  cause="In Go, an unallocated slice is `nil`, and `nil` encodes to `null` in JSON, not `[]`. The frontend assumed it would always get an array."
+  fix="Return an empty slice so the JSON is `[]`." />
+
+<BugCard n={2} area="SvelteKit static build" title="Styles vanished on a deep-route refresh"
+  lesson="A static build that works from `/` can still break on any other URL."
+  symptom="Opening or refreshing a nested route directly served the page with no CSS."
+  cause="Asset paths were relative, so on a nested URL the browser looked in the wrong directory."
+  fix="Absolute asset paths, and `index.html` as the static fallback so Caddy has something to serve.">
+
+```js
+adapter: adapter({ fallback: 'index.html' }),
+paths: { relative: false }
+```
+
+</BugCard>
+
+<BugCard n={3} area="Storage layer" title="Deleting a file left its bytes on disk"
+  lesson="Refunding the quota is not the same as freeing the space."
+  symptom="The database row was gone and the quota was refunded, but the file was still taking up space."
+  cause="`DeleteFile` removed the row inside a transaction and never touched the file on disk."
+  fix="After the transaction commits, remove the file from disk, and ignore the case where it was never there." />
+
+<BugCard n={4} area="Browser" title="Notifications failed over plain HTTP"
+  lesson="Not having HTTPS yet leaks into places you would not expect."
+  symptom="On the LAN deployment, toast notifications stopped working."
+  cause="`crypto.randomUUID()` only exists in secure contexts, and `http://` on a LAN address is not one."
+  fix="Use a counter. A toast needs a unique id, not a random one." />
+
+<BugCard n={5} area="Git workflow" title="Squash-merging erased my history"
+  lesson="Squash for tidy history, merge when the timeline matters."
+  symptom="After squash-merging the Vitest branch, its commits disappeared from my contribution graph."
+  cause="A squash replaces many commits with one, and the individual dates go with them."
+  fix="Merge, do not squash, for branches where the timeline matters." />
+
+</BugLog>
+
+## Where it stands
+
+I would rather you hear the limits from me.
+
+<Ledger items={[
+  { state: 'done', text: 'Auth, folders, files, sharing with View and Edit, quotas and the admin panel work end to end and run on my home server.' },
+  { state: 'done', text: 'CI with lint, vulnerability scanning and tests on every pull request, and automatic deploys on merge to main.' },
+  { state: 'gap', text: 'Test coverage is uneven: 69.2% on the storage layer, 88.1% on the root package through integration tests, and 0% on the handlers and utils packages.' },
+  { state: 'gap', text: 'The server is slow hardware. Builds on it take a while and I am considering a mini PC.' },
+  { state: 'planned', text: 'More drive tools: bulk actions, search and previews.' },
+  { state: 'planned', text: 'JWT support, mainly to make a mobile client practical.' },
+]} />
+
+## Links
+
+- [Owned Cloud repository](https://github.com/Gabriel-S-Paiva/Cloud)
+- [Devlog, day by day](https://github.com/Gabriel-S-Paiva/Cloud/blob/main/DEVLOG.md)

@@ -1,0 +1,188 @@
+---
+title: "SAM"
+summary: "A municipal donation platform with street panels and smart lockers, built by a team of three. This page covers the backend: data models, authentication and authorization, and the CRUD and error layers."
+project: "project-sam"
+order: 3
+draft: true
+---
+import CodeWindow from '../../components/study/CodeWindow.astro';
+import TerminalWindow from '../../components/study/TerminalWindow.astro';
+import Tldr from '../../components/study/Tldr.astro';
+import Facts from '../../components/study/Facts.astro';
+import Flow from '../../components/study/Flow.astro';
+import BugCard from '../../components/study/BugCard.astro';
+import BugLog from '../../components/study/BugLog.astro';
+import Ledger from '../../components/study/Ledger.astro';
+// Code excerpts live in files and are imported raw: MDX strips indentation from multi-line attributes.
+import refreshToken from '../../assets/case-studies/sam/code/refresh-token.js?raw';
+import refreshModel from '../../assets/case-studies/sam/code/refresh-tokens-model.js?raw';
+import authMiddleware from '../../assets/case-studies/sam/code/auth-middleware.js?raw';
+import errorUtils from '../../assets/case-studies/sam/code/error-utils.js?raw';
+import createLead from '../../assets/case-studies/sam/code/create-lead.js?raw';
+
+{/*
+  DRAFT. Sources: the SAM EGP report (June 2026), the AMA report, the p2-sam-backend repo and git blame.
+  Every code excerpt is real and pinned to commit b8daf3d (HEAD of p2-sam-backend main, checked locally).
+  No screenshots yet: the frontend is a teammate's, so ask before using captures of it.
+  Needs Gabi before publishing (see the notes in chat): JMeter role, which bugs were his,
+  family-revoke attribution, municipality name, report as a DocumentCard, AI-use mention.
+  Set draft: false when approved.
+*/}
+
+<Tldr
+  lead="The backend of a municipal donation platform, built by a team of three. It won Best WebPII Project 2025/26."
+  points={[
+    { label: 'Mine', tone: 'brass', text: 'The schema and UML, the Express API, authentication with rotating refresh tokens, role-based access, CRUD over MySQL and MongoDB, and one consistent error shape.' },
+    { label: "Teammates'", tone: 'dim', text: 'The Nuxt frontend, deployment, notifications, the hardware and the load-test scripts.' },
+    { label: 'Honest', tone: 'green', text: 'The weak spots and what I would change are listed at the end, not hidden.' },
+  ]}
+/>
+
+## What it is
+
+SAM (Sistema de Apoio Municipal) connects four groups: institutions that publish what they need, businesses that offer goods or services cheaply or for free, patrons who fund the system, and citizens who walk up to a touch panel in the street. An admin approves needs and matches them to offers. A citizen picks an item to donate, gets a 6-digit PIN by email and a printed receipt, then drops the item in a smart locker that checks the PIN and senses the door opening and closing.
+
+It was the interdisciplinary WebPII project for 2025/26 and it won Best WebPII Project. It was a team of three, and this page covers the backend.
+
+<Facts items={[
+  { label: 'Role', value: 'Backend: schema, models, auth, CRUD, validation' },
+  { label: 'Team', value: '3 people' },
+  { label: 'Built', value: 'Sprints from Apr to May 2026, report in June 2026' },
+  { label: 'Stack', value: 'Node 22, Express 5, Sequelize (MySQL), Mongoose (MongoDB), JWT' },
+  { label: 'Award', value: '1st place, Best WebPII Project 2025/26' },
+]} />
+
+## How a donation travels
+
+<Flow title="donation / flow" steps={[
+  { label: 'Pick', text: 'A citizen chooses an item on the street panel. The panel only lists needs from institutions within 5 km.' },
+  { label: 'Lead', text: 'The API creates a lead for that item in one SQL transaction, together with the citizen record if it is a new person.' },
+  { label: 'PIN', text: 'The citizen enters an email and receives the PIN. The panel prints a receipt.' },
+  { label: 'Locker', text: 'At the locker, a PIN pad checks the PIN against the API. A door sensor reports open and closed. When the deposit is confirmed, the lead becomes ENTREGUE.' },
+  { label: 'Admin', text: 'The admin sees the delivery in the back-office and the need moves forward toward a voucher.' },
+]} caption="Simplified. The panel, the locker and the Raspberry Pi and Arduino hardware all talk to the same API. None of them talk to each other." />
+
+## Who built what
+
+The repos are public and `git blame` is there for anyone who checks, so the split is stated up front.
+
+**Me (Backend).** The relational schema and the UML, written up in the first semester. In the backend: the MVC structure, the Sequelize and Mongoose models, the CRUD controllers and endpoints, the REST API documentation, the error and validation layer, and the authentication and authorization system. Blame on the final backend puts about 54% of the surviving JavaScript lines on this author.
+
+**Teammate A.** The whole Nuxt frontend, the Figma prototype, the deployment and the server it runs on, Socket.IO notifications, transactional email, rate limiting and `helmet`, the thermal printer, and the locker and panel hardware.
+
+**Teammate B.** The Python data generator that produced the synthetic datasets, plus the exporters.
+
+Two areas were shared and are marked where they appear: refresh-token reuse detection, and testing.
+
+## Two databases, and what it costs
+
+MySQL, through Sequelize, is the source of truth: entities, needs, donations, leads and lockers. MongoDB, through Mongoose, holds what is high-volume or loosely shaped: telemetry, audit and interaction logs, notifications, vouchers, and the refresh and API tokens.
+
+The two stores are only joined in the application. A Mongo document stores a SQL primary key, and that is the whole link. The trade-off is real: the database cannot enforce that the key exists, so the code has to. The models and the dual-connection setup live in `db.config.js`, with 26 Sequelize associations declared there. The hybrid design itself came out of the team's first-semester analysis, so it is a team decision.
+
+## Authentication
+
+Access tokens last 15 minutes and refresh tokens 7 days. Passwords use bcrypt. Every login creates a random token family id, and every refresh issues a new refresh token and revokes the old one. The stored token also records the IP address and user agent.
+
+<CodeWindow file="models/refresh_tokens.models.js" lang="js" href="https://github.com/Gabriel-S-Paiva/p2-sam-backend/blob/b8daf3d2d0c2833bf82fddabaa2a787183cbc6ad/models/refresh_tokens.models.js#L1-L19" caption="The whole model. The tokenFamily field is what makes rotation trackable." code={refreshModel} />
+
+The point of the family is theft detection. If a refresh token that was already revoked shows up again, somebody is using a copy, so the whole family is revoked and the user has to log in again.
+
+<CodeWindow file="controllers/auth.controllers.js" lang="js" href="https://github.com/Gabriel-S-Paiva/p2-sam-backend/blob/b8daf3d2d0c2833bf82fddabaa2a787183cbc6ad/controllers/auth.controllers.js#L267-L355" caption="refreshToken: verify, look up, detect reuse, rotate. The new token inherits the family." code={refreshToken} />
+
+The rotation, the logout and the `RefreshTokens` model with its token family were written by the backend author. Teammate A later extended it so that reuse revokes the whole family, which is the `updateMany` branch above.
+
+<Flow title="refresh / reuse detection" steps={[
+  { label: 'Verify', text: 'The signature and expiry of the incoming refresh token are checked. A bad token is a 401.' },
+  { label: 'Look up', text: 'The token must exist in the database. A token that does not is rejected.' },
+  { label: 'Reuse', text: 'If the stored token is already revoked, every token in its family is revoked and the request fails. Someone is replaying an old token.' },
+  { label: 'Rotate', text: 'Otherwise the old token is revoked, a new one is stored in the same family and both tokens are returned. A blocked account gets a 403 instead.' },
+]} caption="The order matters: the reuse check comes before the expiry check, so a replayed token is punished even if it has also expired." />
+
+Authorization is three small middleware functions. `verifyJWT` accepts a JWT or a permanent API token with a `sam_` prefix, stored only as a hash. `requireRoles` checks the role against a list. `adminOrSelf` lets a request through if the caller is an admin or the entity named in the URL, and rejects any identifier that is not exactly nine digits. The API tokens and a service-to-service shortcut were added by Teammate A.
+
+<CodeWindow file="middleware/auth.middleware.js" lang="js" href="https://github.com/Gabriel-S-Paiva/p2-sam-backend/blob/b8daf3d2d0c2833bf82fddabaa2a787183cbc6ad/middleware/auth.middleware.js#L18-L77" caption="verifyJWT, requireRoles and adminOrSelf. The sam_ branch was added by Teammate A." code={authMiddleware} />
+
+## One error shape for the whole API
+
+Every failure goes through `next(err)` into a single error handler, and every error carries a `status` and an `errors` map. The frontend can then show field-level messages without parsing strings.
+
+<CodeWindow file="utils/error.utils.js" lang="js" href="https://github.com/Gabriel-S-Paiva/p2-sam-backend/blob/b8daf3d2d0c2833bf82fddabaa2a787183cbc6ad/utils/error.utils.js#L1-L56" caption="The first half of the error helpers: one constructor per kind of failure, all the same shape." code={errorUtils} />
+
+The shape is not fully consistent: `errors` is a map in some helpers and an array of single-key objects in others, a leftover from writing them over several weeks. One shape would be better.
+
+## Transactions where it matters
+
+Creating a lead can create a citizen too, and a lead must never exist for an item that is already taken. That is several writes and several checks, so it runs inside a Sequelize transaction with an explicit rollback on every early exit.
+
+<CodeWindow file="controllers/leads.controllers.js" lang="js" href="https://github.com/Gabriel-S-Paiva/p2-sam-backend/blob/b8daf3d2d0c2833bf82fddabaa2a787183cbc6ad/controllers/leads.controllers.js#L8-L93" caption="createLead up to the commit. The email and the admin notification go out after it, so a mail failure cannot undo the lead." code={createLead} />
+
+Two weaknesses on a second read. The PIN is passed in by the client in `pin_entrega`, not generated by the server, which is the wrong side of the trust boundary. And the early `rollback()` calls mean the `catch` block can try to roll back a transaction that is already closed.
+
+## Testing: what the numbers say
+
+The report split testing by ISTQB roles. Teammate A was Test Manager with Jira and Xray, Teammate B was Test Analyst, and the backend author was assigned Performance Test Engineer. The JMeter scripts in the tests repo were written by Teammate A, so the results below are reported without claiming their authorship.
+
+<TerminalWindow title="sam / test results" lines={[
+  '$ xray test plan SAM-2, acceptance cycle SAM-4',
+  '17 test cases: 11 passed, 6 skipped, 0 failed',
+  '$ extra automation (not in the plan)',
+  'API checks   65   56 passed   9 skipped',
+  'Postman     106 requests   140 assertions   0 failures',
+  'Selenium     13 checks   12 passed   1 skipped',
+  '$ jmeter, frontend only',
+  '7,772 valid requests   availability 99.97% (target 99.9%)',
+  'p95 target 2.0 s   home 8.0 s   public panel 8.5 s   500-user spike 24.7 s',
+]} caption="Figures from the project report, annex C. The six skipped acceptance cases: two features were never built (hardware registration and funds allocation), and four were blocked by headless Chrome having no geolocation and by the login rate limit returning 429 during automated re-logins." />
+
+The most useful finding is where the slowness was. JMeter hit the frontend, and the latency target was missed badly. The API reads underneath were fast: the needs list took 308 ms, donations 276 ms, leads 165 ms. The report's own recommendation was caching or a CDN in front of the frontend, and a health-check endpoint, which the API does not have.
+
+The backend repo has no tests of its own. Its `test` script is the default stub. Everything above lives in a separate repo and hits the deployed system. The backend author contributed early scaffolding to that repo, but little of it survives.
+
+## Bugs and wrong turns
+
+<BugLog title="bug log / sam" caption="Only the ones the commit history backs up.">
+
+<BugCard n={1} area="Rate limiting" open title="A test bypass added, then removed"
+  lesson="A bypass for your own tests is a bypass for everyone who learns the header."
+  symptom="The login limiter allows 10 attempts per 15 minutes. Automated suites that log in repeatedly hit 429s and failed."
+  cause="The tests needed to log in more often than the limiter allowed."
+  fix="An `x-test-client` header that skipped the limiters was added, then removed a few days later. The suites now have to live inside the limit, which is also why some acceptance cases were skipped.">
+
+```text
+782b915  Rate limit bypasser
+b8daf3d  Removed rate limite skip
+```
+
+</BugCard>
+
+{/* TODO Gabi: confirm which of these were yours before adding more cards:
+    backend started late (ORM/ODM not yet taught), API contract drifted, synthetic data vs models, headless Selenium + geolocation. */}
+
+</BugLog>
+
+## Where it stands
+
+<Ledger items={[
+  { state: 'done', text: 'Authentication with rotation and reuse detection, role-based access, CRUD for all entities, one error shape, and transactions on the writes that touch several tables.' },
+  { state: 'done', text: 'Ran end to end as a demo: panel, PIN email, locker and admin back-office, deployed on a teammate\'s server.' },
+  { state: 'gap', text: 'Service-to-service access leans on a shared secret, so one leaked key would be enough. Machine access should be narrow and should never let the caller choose their own identity.' },
+  { state: 'gap', text: 'Rate limiting exempts some endpoints because the kiosk polls them. A public write endpoint should still have its own limit, and that exemption was never revisited.' },
+  { state: 'gap', text: 'At least one read route was mounted without authentication. Every route should be authenticated by default, with exceptions listed on purpose.' },
+  { state: 'gap', text: 'Locker door state is held in memory in the API process, so a restart loses it and only one instance can run.' },
+  { state: 'gap', text: 'No tests in the backend repo, and no health endpoint.' },
+  { state: 'planned', text: 'Nothing is planned. It was a university project and it is finished.' },
+]} />
+
+## What should change
+
+- Freeze the API contract before the frontend builds against it. One existed in Notion and still drifted.
+- Write backend tests in the backend repo, alongside the features and not at the end.
+- Generate the PIN on the server.
+- Scope machine-to-machine access narrowly, and authenticate every route by default.
+- Persist locker state and add a health endpoint.
+
+## Links
+
+- [Backend repository](https://github.com/Gabriel-S-Paiva/p2-sam-backend)
+- [Automated tests repository](https://github.com/Gabriel-S-Paiva/p2-sam-automated-tests)

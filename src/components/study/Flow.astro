@@ -1,0 +1,32 @@
+---
+// Numbered vertical steps for a sequence (a request flow, a pipeline). Text only.
+interface Props {
+  title: string;
+  steps: { label: string; text: string }[];
+  caption?: string;
+}
+const { title, steps, caption } = Astro.props;
+import Window from './Window.astro';
+---
+
+<Window title={title} caption={caption}>
+  <ol class="flow">
+    {steps.map((s, i) => (
+      <li>
+        <span class="n">{i + 1}</span>
+        <div><strong>{s.label}</strong><span>{s.text}</span></div>
+      </li>
+    ))}
+  </ol>
+</Window>
+
+<style>
+  .flow { list-style: none; margin: 0; padding: 1rem; display: grid; gap: .75rem; }
+  li { display: grid; grid-template-columns: 1.75rem 1fr; gap: .75rem; align-items: start; }
+  .n {
+    display: grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 50%;
+    border: 1px solid var(--line); font-family: var(--font-mono); font-size: 11px; color: var(--brass);
+  }
+  strong { display: block; font-size: 14px; color: var(--text); font-weight: 600; }
+  span:not(.n) { font-size: 13.5px; line-height: 1.55; color: var(--dim); }
+</style>

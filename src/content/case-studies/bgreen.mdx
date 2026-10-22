@@ -1,0 +1,126 @@
+---
+title: "b.green"
+summary: "A household sustainability tracker with points, badges and family rewards, built by a team of three in Vue 3. I wrote the Pinia stores that hold its logic, their tests, and the admin side of the app."
+project: "project-bgreen"
+order: -1
+draft: true
+---
+import ShotWindow from '../../components/study/ShotWindow.astro';
+import CodeWindow from '../../components/study/CodeWindow.astro';
+import Tldr from '../../components/study/Tldr.astro';
+import Facts from '../../components/study/Facts.astro';
+import Flow from '../../components/study/Flow.astro';
+import TerminalWindow from '../../components/study/TerminalWindow.astro';
+import Ledger from '../../components/study/Ledger.astro';
+import wireflow from '../../assets/case-studies/bgreen/wireflow.png';
+import profiles from '../../assets/case-studies/bgreen/profiles.png';
+import admin from '../../assets/case-studies/bgreen/admin.png';
+// Code excerpts live in files and are imported raw: MDX strips indentation from multi-line attributes.
+import calcEmissions from '../../assets/case-studies/bgreen/code/calculate-emissions.js?raw';
+
+{/*
+  DRAFT. Sources: the pw1-eco-tracker README, git log and blame at 57d712c, the b.green Figma cover and the ECDI FigJam board.
+  Commits: Gabi 94 of 199. Blame (src/): userStore 77% Gabi, tasksStore and appliancesStore 99%, the three store spec files 100%,
+  AdminDashboardView 75%, QuickStartView 69%, ProfileSelectionView 71%, ChatBot 63%.
+  Teammates (kept anonymous on the page by Gabi's choice): the carbon API in its own repo and server, the image upload service,
+  most of the landing page and statistics chart, the backup/rollback pattern in the store actions, most component tests.
+  Screenshots: local run (vite + json-server, seed household "Sofia"), Vue devtools overlay hidden.
+  The FigJam board stickies are split about evenly between the three of us; the wireflow nodes carry no author.
+  The two Figma design files only expose the logo cover through the API.
+  Credits stay anonymous and short: the page is about the stores, not the split.
+*/}
+
+<Tldr
+  lead="A web app that turns a family's energy use and green habits into points, badges and rewards. Team of three, one semester."
+  points={[
+    { label: 'Mine', tone: 'brass', text: 'The user, tasks and appliances Pinia stores and their 113 unit tests, the admin dashboard, the first-use setup wizard and profile selection with PINs.' },
+    { label: "Teammates'", tone: 'dim', text: 'The carbon emissions API, the landing page and most of the component tests.' },
+    { label: 'Honest', tone: 'green', text: 'There is no real backend. It runs against a json-server mock, and the security gaps that come with that are listed below.' },
+  ]}
+/>
+
+## What it is
+
+b.green is for households that want to be more sustainable but lack one place to track it. One account holds the whole family, with up to a set number of profiles: an admin (usually a parent) and standard members. Members log appliance use and complete green tasks, such as turning off lights or recycling plastic, and earn points and XP. Points buy rewards the admin defines, such as picking the Saturday film. Levels, streaks, badges and a family leaderboard sit on top.
+
+It was the team project for Web Programming I at ESMAD in 2025/26.
+
+<Facts items={[
+  { label: 'Role', value: 'Pinia stores, store tests, admin dashboard, setup and profile flows' },
+  { label: 'Team', value: '3 people, 199 commits (94 mine)' },
+  { label: 'Built', value: 'Nov 2025 to Jan 2026' },
+  { label: 'Stack', value: 'Vue 3, Pinia, Vue Router, Tailwind CSS, Vitest, json-server' },
+]} />
+
+## Who built what
+
+The stores, their tests, the admin dashboard, the QuickStart wizard and profile selection with PINs are mine. My teammates built the carbon emissions API, the landing page, image uploads and most of the component tests, and several views were shared work.
+
+## From flow to screens
+
+The team mapped the app as a wireflow before building it: landing, sign-up and login, profile selection, then the home dashboard with its four areas (statistics, appliances, tasks, tools), with admins branching to their own panel.
+
+<ShotWindow src={wireflow} alt="A grey wireframe flow: landing page, sign-up, login, profile selection, home dashboard, admin panel, profile page and four detail screens joined by labelled arrows" title="figjam / wireflow" caption="The team wireflow. Labels are Portuguese: after creating an account, successful login, select an account, admin button, if admin." />
+
+<ShotWindow src={profiles} alt="Profile selection screen titled Selecione o seu perfil, with three avatar cards for Sofia, Miguel and Beatriz and an Adicionar card" title="b.green / profile selection" caption="Profile selection after login. Any profile can be PIN-protected." />
+
+## The stores are the backend
+
+With no server of our own, the Pinia stores carry the logic a backend would: validation, point accounting, level-ups, streaks, badge checks, and reward redemption and approval. Each action changes local state and then writes the household document back to json-server. The backup-and-rollback around each write came from a teammate's refactor; the logic inside the actions is mine.
+
+<Flow title="b.green / data path" steps={[
+  { label: 'View', text: 'A Vue view calls a store action, such as completing a task or redeeming a reward.' },
+  { label: 'Store', text: 'The action validates, updates points, XP, history and badges in local state, and keeps a copy of the old state.' },
+  { label: 'Persist', text: 'The whole household document is PUT to json-server. On a network error, the old state is put back.' },
+  { label: 'Emissions', text: 'Appliance use goes to the carbon API for kWh and CO₂. If the API fails, the store computes it locally.' },
+]} caption="json-server stands in for the API. The carbon API is the only real service, and it is a teammate's." />
+
+The appliance emissions are the clearest example. The store calls the carbon API client. If that call throws, for example on a server error, the store falls back to a local estimate from the appliance's wattage and marks the result as local, so logging appliance use keeps working when the API is down.
+
+<CodeWindow file="src/stores/appliencesStore.js" lang="js" href="https://github.com/Gabriel-S-Paiva/pw1-eco-tracker/blob/57d712c58f3cd46cf5732a4074daee01da366a53/src/stores/appliencesStore.js#L149-L209" caption="calculateEmissions in the store: the API client first, a labelled local fallback second. The 0.188 kg CO₂/kWh factor is the one the code uses." code={calcEmissions} />
+
+There is a catch. The API client, mostly a teammate's, has its own local fallback for when no API key is configured, and that one does not label its result. So the same estimate is written twice, and a number can be local without saying so.
+
+## The admin side
+
+The admin dashboard is one page with collapsible, draggable sections for members, rewards, appliances, tasks and challenges. The admin adds and edits rewards there, and approves or cancels the ones members redeem. Cancelling refunds the points.
+
+<ShotWindow src={admin} alt="Admin dashboard sections for user management, with Sofia as administrator and two member cards, and reward management, with six reward cards showing point costs and edit and delete buttons" title="b.green / admin dashboard" caption="Member and reward management, from the seeded demo household. Text is Portuguese." maxHeight="min(80vh, 760px)" />
+
+## Tests
+
+I wrote the store tests with Vitest. They cover login and registration, profile CRUD and its limits, points, XP and level-ups, reward redemption, streaks, and the tasks and appliances CRUD. The component tests are mostly a teammate's.
+
+<TerminalWindow title="pw1-eco-tracker" lines={[
+  '$ npx vitest run src/stores',
+  'Test Files  3 passed (3)',
+  '     Tests  113 passed (113)',
+  '$ npx vitest run',
+  'Test Files  18 passed (18)',
+  '     Tests  261 passed (261)',
+]} caption="Run locally at the final commit, 57d712c." />
+
+## Where it stands
+
+<Ledger title="status / bgreen" items={[
+  { state: 'done', text: 'Every core flow works against the mock API: setup, profiles and PINs, tasks, appliance tracking, points, levels, streaks, badges, rewards and the admin dashboard.' },
+  { state: 'gap', text: 'Authentication is a mock. Passwords sit in plain text in db.json and the login sends them in a query string. Fine for a course demo against json-server, unacceptable anywhere else.' },
+  { state: 'gap', text: 'The rules live in the client. Point balances and reward costs are checked in the browser, so anyone with devtools can award themselves points.' },
+  { state: 'gap', text: 'Every write PUTs the whole household. Two family members on two devices will overwrite each other: last write wins.' },
+  { state: 'gap', text: 'The local emissions estimate exists in two layers, and only one of them labels its result. One fallback, in one place, would be enough.' },
+  { state: 'gap', text: 'fetch only rejects on network errors, so a 4xx or 5xx from the server is treated as success and the rollback never runs.' },
+  { state: 'planned', text: 'Nothing is planned. The repo is archived.' },
+]} />
+
+## What a backend would change
+
+Most of the gaps above have the same fix: move the rules to a server.
+
+- Real authentication: hashed passwords, sessions or tokens, and no credentials in URLs.
+- Point and reward rules enforced on the server, inside transactions, so a balance can never go negative.
+- Small endpoints per action (complete task, redeem reward) instead of rewriting the whole household.
+- Check `response.ok` on every request and treat server errors as failures.
+
+## Links
+
+- [Repository](https://github.com/Gabriel-S-Paiva/pw1-eco-tracker) (archived)

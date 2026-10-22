@@ -1,0 +1,19 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import CaseStudy from '../../layouts/CaseStudy.astro';
+
+export async function getStaticPaths() {
+  // Drafts are visible in `astro dev` only.
+  const studies = await getCollection('caseStudies', (e) => import.meta.env.DEV || !e.data.draft);
+  return studies.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const project = await getEntry('projects', entry.data.project);
+if (!project) throw new Error(`Case study "${entry.id}" points to unknown project "${entry.data.project}"`);
+const { Content } = await render(entry);
+---
+
+<CaseStudy title={entry.data.title} summary={entry.data.summary} project={project.data}>
+  <Content />
+</CaseStudy>

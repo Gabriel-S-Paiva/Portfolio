@@ -1,0 +1,29 @@
+---
+import Window from './Window.astro';
+
+// Lines starting with "$ " are commands (shown with the dock's green prompt);
+// everything else is output. Pass only real output from the project.
+interface Props {
+  title?: string;
+  lines: string[];
+  caption?: string;
+}
+const { title = 'terminal', lines, caption } = Astro.props;
+const rows = lines.map((l) => (l.startsWith('$ ') ? { cmd: true, text: l.slice(2) } : { cmd: false, text: l }));
+---
+
+<Window title={title} caption={caption}>
+  <pre class="term"><code>{rows.map((r) => (
+    <span class:list={['row', { cmd: r.cmd }]}>{r.cmd ? <span class="prompt">› </span> : null}{r.text}{'\n'}</span>
+  ))}</code></pre>
+</Window>
+
+<style>
+  .term {
+    margin: 0; padding: 1rem; overflow-x: auto;
+    font-family: var(--font-mono); font-size: 12.5px; line-height: 1.65; color: var(--dim);
+    white-space: pre;
+  }
+  .cmd { color: var(--text); }
+  .prompt { color: var(--green); }
+</style>

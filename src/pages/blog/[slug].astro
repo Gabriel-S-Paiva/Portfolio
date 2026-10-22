@@ -1,0 +1,21 @@
+---
+import { render } from 'astro:content';
+import BlogPost from '../../layouts/BlogPost.astro';
+import { getPosts } from '../../lib/blog';
+
+export async function getStaticPaths() {
+  // Newest first; drafts are visible in `astro dev` only.
+  const posts = await getPosts();
+  return posts.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: { entry, newer: posts[i - 1], older: posts[i + 1] },
+  }));
+}
+
+const { entry, newer, older } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<BlogPost entry={entry} newer={newer} older={older}>
+  <Content />
+</BlogPost>

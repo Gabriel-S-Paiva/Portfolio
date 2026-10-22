@@ -1,0 +1,43 @@
+---
+import Window from './Window.astro';
+
+// Owned Cloud request path, drawn in HTML so it follows the light/dark tokens.
+interface Props {
+  caption?: string;
+}
+const { caption } = Astro.props;
+---
+
+<Window title="deploy / request path" caption={caption}>
+  <div class="arch" role="img" aria-label="A browser request goes to the gateway Caddy, then to the project's Caddy container. Requests under /api have the prefix stripped and go to the Go backend, which uses SQLite and a data volume. All other requests are served from the static SvelteKit build.">
+    <div class="node edge"><b>Browser</b><small>LAN, plain HTTP</small></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="node"><b>gateway Caddy</b><small>external network <code>global-web</code></small></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="node"><b>caddy</b><small>this project's container</small></div>
+    <div class="fork" aria-hidden="true">
+      <div class="branch"><span class="route">/api/*</span><span class="note">prefix stripped</span><div class="node accent"><b>Go backend</b><small>:8080 · SQLite + volume</small></div></div>
+      <div class="branch"><span class="route">everything else</span><span class="note">try_files → index.html</span><div class="node accent"><b>Static SvelteKit build</b><small>served from /srv</small></div></div>
+    </div>
+  </div>
+</Window>
+
+<style>
+  .arch { display: grid; grid-template-columns: 1fr; gap: .5rem; padding: 1.25rem 1rem; }
+  .node { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: .625rem .75rem; }
+  .node b { display: block; font-size: 13.5px; color: var(--text); font-weight: 600; }
+  .node small { display: block; margin-top: .125rem; font-size: 12px; color: var(--dim); }
+  .node code { font-family: var(--font-mono); font-size: 11.5px; }
+  .accent { border-color: color-mix(in srgb, var(--green) 45%, var(--line)); }
+  .edge { border-style: dashed; }
+  .arrow { text-align: center; color: var(--dimmer); font-family: var(--font-mono); transform: rotate(90deg); }
+  .fork { display: grid; gap: .75rem; margin-top: .5rem; }
+  .branch { display: grid; gap: .25rem; padding-left: 1rem; border-left: 2px solid var(--line); }
+  .route { font-family: var(--font-mono); font-size: 12px; color: var(--brass); }
+  .note { font-size: 12px; color: var(--dimmer); }
+  @media (min-width: 720px) {
+    .arch { grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; row-gap: 1rem; }
+    .arrow { transform: none; }
+    .fork { grid-column: 1 / -1; grid-template-columns: 1fr 1fr; }
+  }
+</style>

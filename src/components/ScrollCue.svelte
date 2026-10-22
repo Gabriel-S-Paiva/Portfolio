@@ -25,7 +25,7 @@
 <button
   type="button"
   onclick={scrollToTarget}
-  class="fixed left-1/2 -translate-x-1/2 bottom-[104px] z-[26] font-[family-name:var(--font-mono)] text-[11px] text-[var(--dimmer)] inline-flex items-center gap-2 cursor-pointer bg-[var(--surface)] border border-[var(--line)] rounded-full px-3.5 py-[7px] transition-opacity"
+  class="fixed left-1/2 -translate-x-1/2 bottom-[104px] z-[26] font-[family-name:var(--font-mono)] t-micro text-[var(--dimmer)] hidden lg:inline-flex items-center gap-2 cursor-pointer bg-[var(--surface)] border border-[var(--line)] rounded-full px-3.5 py-[7px] transition-opacity"
   class:opacity-0={hidden}
   class:pointer-events-none={hidden}
 >

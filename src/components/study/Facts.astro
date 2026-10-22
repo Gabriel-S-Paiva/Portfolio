@@ -1,0 +1,27 @@
+---
+// Compact label/value strip for the facts a skimmer wants first.
+interface Props {
+  items: { label: string; value: string }[];
+}
+const { items } = Astro.props;
+---
+
+<dl class="facts">
+  {items.map((i) => (
+    <div class="fact">
+      <dt>{i.label}</dt>
+      <dd>{i.value}</dd>
+    </div>
+  ))}
+</dl>
+
+<style>
+  .facts {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+    margin-block: 2rem; padding: 0;
+    border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); overflow: clip;
+  }
+  .fact { padding: .875rem 1rem; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); margin: 0 -1px -1px 0; }
+  dt { font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--dimmer); }
+  dd { margin: .25rem 0 0; font-size: 14px; line-height: 1.45; color: var(--text); }
+</style>

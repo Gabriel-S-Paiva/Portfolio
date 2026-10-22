@@ -1,0 +1,50 @@
+---
+import Window from './Window.astro';
+
+// Side-by-side "what I knew / what I learned" rows. `code` spans are written with backticks.
+interface Props {
+  title: string;
+  left: string;
+  right: string;
+  rows: { topic: string; left: string; right: string }[];
+  caption?: string;
+}
+const { title, left, right, rows, caption } = Astro.props;
+// Split on backticks so `x` renders as inline code without set:html.
+const parts = (s: string) => s.split('`').map((text, i) => ({ text, code: i % 2 === 1 }));
+---
+
+<Window title={title} caption={caption}>
+  <div class="compare">
+    <div class="head" aria-hidden="true">
+      <span></span><span>{left}</span><span class="r">{right}</span>
+    </div>
+    {rows.map((r) => (
+      <div class="row">
+        <span class="topic">{r.topic}</span>
+        <p><span class="sr">{left}: </span>{parts(r.left).map((p) => (p.code ? <code>{p.text}</code> : p.text))}</p>
+        <p class="r"><span class="sr">{right}: </span>{parts(r.right).map((p) => (p.code ? <code>{p.text}</code> : p.text))}</p>
+      </div>
+    ))}
+  </div>
+</Window>
+
+<style>
+  .compare { display: grid; }
+  .head, .row { display: grid; grid-template-columns: 8.5rem 1fr 1fr; gap: 1rem; padding: .75rem 1rem; }
+  .head { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--dimmer); border-bottom: 1px solid var(--line); }
+  .head .r { color: var(--green); }
+  .row + .row { border-top: 1px solid var(--line); }
+  .topic { font-family: var(--font-mono); font-size: 12px; color: var(--brass); padding-top: .15rem; }
+  p { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--dim); }
+  p.r { color: var(--text); }
+  code { font-family: var(--font-mono); font-size: .9em; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: .05em .3em; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  @media (max-width: 620px) {
+    .head { display: none; }
+    .row { grid-template-columns: 1fr; gap: .35rem; }
+    /* On one column the hidden labels become visible row labels. */
+    .sr { position: static; width: auto; height: auto; clip-path: none; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--dimmer); display: block; }
+    p.r .sr { color: var(--green); }
+  }
+</style>

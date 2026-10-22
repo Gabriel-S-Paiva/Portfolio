@@ -1,0 +1,17 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from './Nav.svelte';
+import Footer from './Footer.svelte';
+
+interface Props { title: string; heading: string; }
+const { title, heading } = Astro.props;
+---
+
+<Layout title={`${title} | Gabriel Paiva`}>
+  <Nav client:load current={Astro.url.pathname} />
+  <main class="max-w-[900px] mx-auto px-7 py-24 min-h-[60dvh]">
+    <h1 class="t-h1">{heading}</h1>
+    <p class="mt-4 text-[var(--dim)] font-[family-name:var(--font-mono)] text-sm">Coming soon.</p>
+  </main>
+  <Footer />
+</Layout>

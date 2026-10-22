@@ -7,7 +7,7 @@ export const skillGroups = [
   {
     title: 'Backend & Systems',
     commit: 'git commit -m "add backend & systems"',
-    skills: ['Node.js', 'Express', 'REST APIs', 'WebSockets (Socket.IO)', 'SQLite', 'MySQL (Sequelize)', 'MongoDB (Mongoose)', 'JWT & Sessions']
+    skills: ['Node.js', 'Express', 'REST APIs', 'SQLite', 'MySQL (Sequelize)', 'MongoDB (Mongoose)', 'JWT & Sessions']
   },
   {
     title: 'DevOps & Testing',

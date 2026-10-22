@@ -263,7 +263,7 @@
     class="w-full h-12 flex items-center gap-2.5 bg-[var(--surface-2)] border border-[var(--line)] rounded-full px-4 cursor-pointer shadow-lg hover:border-[#3a4150] transition-colors"
   >
     <span class="text-[var(--green)] font-[family-name:var(--font-mono)] text-sm">›</span>
-    <input readonly placeholder="try: git checkout skills" class="bg-transparent border-none outline-none text-[var(--text)] font-[family-name:var(--font-mono)] text-[13.5px] w-full cursor-pointer placeholder:text-[var(--dimmer)]" />
+    <input readonly placeholder="try: git checkout skills" class="bg-transparent border-none outline-none text-[var(--text)] font-[family-name:var(--font-mono)] t-caption w-full cursor-pointer placeholder:text-[var(--dimmer)]" />
   </button>
 </div>
 

@@ -1,0 +1,78 @@
+---
+title: "The prize was a book, so I spent the summer building something with it"
+summary: "PlanIt won a Vue book at ESMAD, so I spent my summer building a project next to it. Here's what that taught me, including what I got wrong about my own TypeScript."
+date: 2025-06-20
+written: 2026-10-20
+tags: [vue, typescript, pinia, learning]
+draft: true
+---
+import Facts from '../../components/study/Facts.astro';
+import CodeWindow from '../../components/study/CodeWindow.astro';
+import componentMap from '../../assets/blog/mosaic/component-map.ts?raw';
+
+{/*
+  DRAFT. Sources: context/2025-06-mosaic.md (Gabi), the mosaic repo at 27f31ca (40 commits, 25 Aug to 24 Sep 2025),
+  the b.green repo (48 of 50 .vue files use the Options API), and the INESC TEC note on the book (authors, publisher).
+  Fact-check changes vs the source draft:
+  - The /profile route does exist; it renders a static placeholder card. The login view is an empty file.
+  - The repo's whole history has one `as any` (later removed) and one `Record<string, any>`, not "any whenever the checker complained".
+  - First pieces were the timer and task list (25 Aug onward); notes, the PDF reader and flashcards came in September.
+  - 9 July is when the holiday and the reading started (Gabi); the first commit is 25 Aug. The post says both.
+*/}
+
+In June 2025, PlanIt won Best Project at ESMAD. The prize wasn't a trophy or a voucher. It was a book: *Desenvolvimento Avançado para a Web: Do Front-End ao Back-End*, by Ricardo Queirós and Filipe Portela. I got it on 20 June.
+
+Most people would have put it on a shelf. I wanted to find out what happens if you actually use it.
+
+## The deal I made with myself
+
+From 9 July I was in full holiday mode, and I decided the book wasn't going to be something I just read. I'd go through it chapter by chapter and build something next to it, so every chapter had a place to land. The reading came first: the first commit didn't land until 25 August.
+
+The something was **Mosaic**.
+
+<Facts items={[
+  { label: 'What', value: 'A grid of small study tools' },
+  { label: 'Stack', value: 'Vue 3, TypeScript, Vite, Tailwind, Pinia' },
+  { label: 'Commits', value: '40, from 25 Aug to 24 Sep 2025' },
+  { label: 'Status', value: 'Abandoned, on purpose' },
+]} />
+
+## What Mosaic was supposed to be
+
+The idea was a sandbox for modular learning tools: small tools you snap into a grid and rearrange. I started with the ones I already used when I studied. A focus timer and a task list came first, then notes, a PDF reader and flashcards, all placed by drag and drop.
+
+It was never meant to be a product. It was a vehicle for learning Vue properly.
+
+## How the summer actually went
+
+Not as consistently as I'd have liked. Until 3 September I was also doing the MasterD course, so my attention kept switching between my own project and the course. Some weeks Mosaic got most of it and some weeks much less. By the end of September I had a half-built app and a lot of lessons.
+
+The book taught Vue with the Options API. I also had the official docs open, and they push the Composition API, so I wrote Mosaic with `<script setup>`. That turned out to be a useful accident: I came out understanding both styles and why people argue about them.
+
+## What I got wrong about my own TypeScript
+
+This was my first time using TypeScript, and my memory of it was simple: whenever the type checker complained, I reached for `any` and moved on.
+
+When I read the repo back for this post, the code didn't fully agree with me. Strict mode is on, the stores have interfaces for tasks, grid cells and the timer, and the whole history has exactly one `as any` (which I later removed) and one `any` that's still there:
+
+<CodeWindow file="src/components/Sandbox.vue" lang="ts" href="https://github.com/Gabriel-S-Paiva/mosaic/blob/27f31cab0fb0122e2810250cce22b77b2ae03983/src/components/Sandbox.vue#L16-L25" caption="The one any left in the repo. The honest type is Record<string, Component | null>, from Vue's own Component type." code={componentMap} />
+
+So the lesson isn't "I sprinkled `any` everywhere". It's smaller and more useful: I treated type errors as obstacles to get past, not as information. That one `any` is exactly that. It made an error go away instead of saying what the map holds. The habit was real even where the damage was small, and checking my memory against the code is a habit I want to keep too.
+
+## Where it ended
+
+Mosaic is abandoned, and I'm fine with that. Since it was only ever for learning, nothing forced me to finish it. It shows: the navbar links to a `/profile` page that only renders a placeholder card, and the login page is an empty file waiting for a database that never came.
+
+I don't plan to go back, but I know what I'd do if I did. I'd port it to a desktop app with Tauri or Electron, type it properly and finish the product.
+
+## Did it help?
+
+Yes, though not through code. None of Mosaic ended up in later projects. But when the next semester started and my team built [b.green](/showcase/bgreen), I already understood Vue. We built that one with the Options API, the style from the book, so the summer paid off straight away, just not in a way you can trace in a diff.
+
+## What I'd want you to take from this
+
+- I learn by building. A book on its own wouldn't have stuck.
+- I can look at my own code and say what's wrong with it, and check that against what's actually there.
+- I don't pretend unfinished work is finished. The repo is public, and it's labelled for what it is.
+
+The code is on [GitHub](https://github.com/Gabriel-S-Paiva/mosaic) if you want to find that `any` yourself.

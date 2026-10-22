@@ -1,0 +1,40 @@
+---
+import Window from './Window.astro';
+
+// A left-to-right chain of stages (a deploy pipeline, a network path). Wraps to vertical on narrow screens.
+interface Props {
+  title: string;
+  steps: { label: string; note?: string; accent?: boolean; dashed?: boolean }[];
+  caption?: string;
+}
+const { title, steps, caption } = Astro.props;
+---
+
+<Window title={title} caption={caption}>
+  <ol class="pipe" aria-label={steps.map((s) => s.label).join(', then ')}>
+    {steps.map((s, i) => (
+      <>
+        {i > 0 && <li class="arrow" aria-hidden="true">→</li>}
+        <li class:list={['stage', { accent: s.accent, dashed: s.dashed }]}>
+          <b>{s.label}</b>
+          {s.note && <small>{s.note}</small>}
+        </li>
+      </>
+    ))}
+  </ol>
+</Window>
+
+<style>
+  .pipe { list-style: none; margin: 0; padding: 1.25rem 1rem; display: grid; gap: .5rem; }
+  .stage { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: .625rem .75rem; min-width: 0; }
+  .stage b { display: block; font-size: 13.5px; color: var(--text); font-weight: 600; }
+  .stage small { display: block; margin-top: .125rem; font-size: 12px; line-height: 1.45; color: var(--dim); }
+  .accent { border-color: color-mix(in srgb, var(--green) 45%, var(--line)); }
+  .dashed { border-style: dashed; }
+  .arrow { text-align: center; color: var(--dimmer); font-family: var(--font-mono); transform: rotate(90deg); }
+  @media (min-width: 720px) {
+    .pipe { display: flex; align-items: stretch; }
+    .stage { flex: 1 1 0; }
+    .arrow { transform: none; align-self: center; flex: none; }
+  }
+</style>

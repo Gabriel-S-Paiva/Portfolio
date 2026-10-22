@@ -1,0 +1,113 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Nav from '../../components/Nav.svelte';
+import Footer from '../../components/Footer.svelte';
+import { getCollection, getEntry } from 'astro:content';
+
+const studies = (await getCollection('caseStudies', (e) => import.meta.env.DEV || !e.data.draft))
+  .sort((a, b) => b.data.order - a.data.order);
+const studyCards = await Promise.all(
+  studies.map(async (s) => ({ study: s, project: (await getEntry('projects', s.data.project))! })),
+);
+
+const repos = await getCollection('repos');
+const groups = [
+  { kind: 'solo', label: 'Solo projects' },
+  { kind: 'hackathon', label: 'Hackathon' },
+  { kind: 'team', label: 'Team projects' },
+  { kind: 'course', label: 'Frontend & graphics' },
+] as const;
+---
+
+<Layout title="Showcase | Gabriel Paiva" description="Case studies and public repositories by Gabriel Paiva.">
+  <Nav client:load current={Astro.url.pathname} />
+
+  <main class="max-w-[900px] mx-auto px-7 pt-14 md:pt-20 pb-10">
+    <header class="max-w-[680px]">
+      <h1 class="t-h1">Showcase</h1>
+      <p class="mt-5 t-lead text-[var(--dim)]">Case studies for the work I'm proudest of, and every public repository below.</p>
+    </header>
+
+    {studyCards.length > 0 && (
+      <section aria-labelledby="studies-title" class="mt-14">
+        <h2 id="studies-title" class="t-h2">Case studies</h2>
+        <ul class="mt-6 space-y-6">
+          {studyCards.map(({ study, project }) => (
+            <li>
+              <a
+                href={`/showcase/${study.id}`}
+                class="group grid md:grid-cols-[1.35fr_1fr] gap-0 overflow-hidden bg-[var(--surface)] border border-[var(--line)] rounded-xl no-underline transition-colors hover:border-[var(--brass)]"
+              >
+                <div class="relative aspect-[2/1] md:aspect-auto md:min-h-[280px] overflow-hidden bg-[var(--surface-2)] border-b md:border-b-0 md:border-r border-[var(--line)]">
+                  {project.data.shot ? (
+                    <img
+                      src={project.data.shot}
+                      alt=""
+                      width="1920"
+                      height="960"
+                      loading="lazy"
+                      class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                    />
+                  ) : (
+                    <div class="absolute inset-0 grid place-items-center font-[family-name:var(--font-mono)] t-caption text-[var(--dimmer)]">No cover yet</div>
+                  )}
+                </div>
+                <div class="p-6 md:p-7 flex flex-col">
+                  <h3 class="t-h2 text-[var(--text)]">{study.data.title}</h3>
+                  <p class="mt-2 t-caption text-[var(--brass)]">{project.data.role}</p>
+                  {project.data.awardBadge && (
+                    <p class="mt-2"><span class="font-[family-name:var(--font-mono)] t-micro text-[var(--brass)] bg-[#c99a5b15] border border-[#c99a5b30] px-2 py-0.5 rounded">{project.data.awardBadge}</span></p>
+                  )}
+                  <p class="mt-4 t-small text-[var(--dim)]">{study.data.summary}</p>
+                  <ul class="mt-4 flex flex-wrap gap-1.5">
+                    {project.data.stack.slice(0, 5).map((t) => (
+                      <li class="font-[family-name:var(--font-mono)] t-micro text-[var(--green)] bg-[#6fcf9714] border border-[#6fcf9730] px-2 py-0.5 rounded">{t}</li>
+                    ))}
+                  </ul>
+                  <span class="mt-auto pt-6 font-[family-name:var(--font-mono)] t-caption text-[var(--text)] group-hover:text-[var(--brass)] transition-colors">Read case study →</span>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <section aria-labelledby="repos-title" class="mt-16 border-t border-[var(--line)] pt-14">
+      <h2 id="repos-title" class="t-h2">All repositories</h2>
+      <p class="mt-3 t-small text-[var(--dim)]">Public repos only, newest first within each group.</p>
+
+      {groups.map((g) => {
+        const items = repos
+          .filter((r) => r.data.kind === g.kind)
+          .sort((a, b) => b.data.year.localeCompare(a.data.year));
+        return items.length > 0 && (
+          <div class="mt-10">
+            <h3 class="font-[family-name:var(--font-mono)] t-caption text-[var(--dim)]">{g.label} <span class="text-[var(--dimmer)]">({items.length})</span></h3>
+            <ul class="mt-3 grid md:grid-cols-2 gap-x-10">
+              {items.map((r) => (
+                <li class="border-t border-[var(--line)] py-4">
+                  <div class="flex items-baseline justify-between gap-4">
+                    <a href={r.data.url} target="_blank" rel="noopener" class="font-[family-name:var(--font-mono)] t-small text-[var(--text)] no-underline hover:text-[var(--brass)] transition-colors break-all">
+                      {r.data.name} ↗
+                    </a>
+                    <span class="font-[family-name:var(--font-mono)] t-caption text-[var(--dimmer)] whitespace-nowrap tabular">{r.data.year}</span>
+                  </div>
+                  <p class="mt-1.5 t-small text-[var(--dim)]">{r.data.description}</p>
+                  <p class="mt-2 font-[family-name:var(--font-mono)] t-caption text-[var(--dim)]">
+                    {r.data.language}{r.data.archived ? ', archived' : ''}
+                    {r.data.study && (
+                      <a href={`/showcase/${r.data.study}`} class="ml-3 text-[var(--brass)] no-underline hover:underline">Case study →</a>
+                    )}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })}
+    </section>
+  </main>
+
+  <Footer />
+</Layout>

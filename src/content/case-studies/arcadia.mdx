@@ -1,0 +1,115 @@
+---
+title: "Arcadia"
+summary: "A two-phase browser game about recycling, built by a team of two. I built the platformer phase from scratch on a 2D canvas: physics, collisions, camera and level."
+project: "project-arcadia"
+order: 0
+draft: true
+---
+import ShotWindow from '../../components/study/ShotWindow.astro';
+import CodeWindow from '../../components/study/CodeWindow.astro';
+import Tldr from '../../components/study/Tldr.astro';
+import Facts from '../../components/study/Facts.astro';
+import Flow from '../../components/study/Flow.astro';
+import Ledger from '../../components/study/Ledger.astro';
+import level from '../../assets/case-studies/arcadia/level.png';
+import debug from '../../assets/case-studies/arcadia/debug.png';
+// Code excerpts live in files and are imported raw: MDX strips indentation from multi-line attributes.
+import collision from '../../assets/case-studies/arcadia/code/resolve-platform-collision.js?raw';
+import camera from '../../assets/case-studies/arcadia/code/camera.js?raw';
+import handoff from '../../assets/case-studies/arcadia/code/save-to-local-storage.js?raw';
+
+{/*
+  DRAFT. Sources: the Arcadia repo README and git blame at b9ad994 (the fork is level with the teammate's original repo).
+  Blame: js/Classes/* is 100% Gabi; js/game.js 70% Gabi (the teammate's lines are scattered single lines from a formatting pass);
+  jogo_ml5.js, main.js, settings.js, creditos.js, style.css and the menu/settings/credits/instructions pages are the teammate's.
+  Screenshots: captured from the live deploy (cg-project-tsiw.vercel.app), cropped to the canvas.
+  Decided: the teammate stays unnamed; the README's AI-assistance note is not mentioned.
+*/}
+
+<Tldr
+  lead="A browser game that teaches recycling in two phases. I built the first one, a platformer, with no game engine."
+  points={[
+    { label: 'Mine', tone: 'brass', text: 'The platformer: game loop, Euler physics, AABB collision with solid, one-way and moving platforms, pushable boxes, a dead-zone camera, the level, and the counter and victory popup on the game page.' },
+    { label: "Teammate's", tone: 'dim', text: 'The hand-gesture sorting phase (MediaPipe Hands), the main menu, settings, credits and instructions pages, and the site styling.' },
+    { label: 'Honest', tone: 'green', text: 'A course project in plain JavaScript. The rough edges are listed at the end.' },
+  ]}
+/>
+
+## What it is
+
+Arcadia is a recycling game for the Computer Graphics course at ESMAD. In the first phase you run and jump through a level collecting waste: paper, glass, plastic and general waste. In the second phase the camera turns on and you sort what you collected into the right recycling bins with hand gestures.
+
+The name mixes three ideas: Arcadia, the idyllic region of ancient Greece; the arcade (*arcada*) that is a landmark of the ESMAD campus; and arcade games.
+
+<Facts items={[
+  { label: 'Role', value: 'Platformer phase: physics, collisions, camera, level' },
+  { label: 'Team', value: '2 people' },
+  { label: 'Built', value: 'Oct to Nov 2025' },
+  { label: 'Stack', value: 'JavaScript, Canvas 2D API, HTML, CSS. No engine, no libraries in my phase' },
+]} />
+
+<ShotWindow src={level} alt="The Arcadia platformer level: grass platforms, wooden crates, floating waste items and the player character on the ground" title="arcadia / phase 1" caption="The platformer, captured from the live build. 24 waste items spawn at random from a list of possible positions." />
+
+## Who built what
+
+The repo is public, so the split is stated up front. Everything under `js/Classes/` (Player, Platform, Box, Goal, Residuos, Vector) is mine, and so is the game loop, the camera and the level layout in `game.js`. On the game page I also built the collection counter, the instructions modal and the victory popup.
+
+My teammate built the second phase: hand tracking with MediaPipe Hands, gesture recognition and the drag-to-bin sorting. They also built the main menu, the settings, credits and instructions pages, and the site-wide styling.
+
+## How the two phases meet
+
+The phases are separate pages, so they needed a contract. I kept it small: when the player reaches the goal, the counts per waste type go into `localStorage`, and the gesture phase reads them back.
+
+<Flow title="arcadia / phase handoff" steps={[
+  { label: 'Collect', text: 'The player runs through the level picking up waste. Each pickup is counted by type.' },
+  { label: 'Goal', text: 'Touching the goal pauses the game and shows the totals. The player can go on to phase 2 or keep collecting.' },
+  { label: 'Save', text: 'The four counts are written to localStorage under fixed keys.' },
+  { label: 'Sort', text: 'The gesture phase reads the same keys and spawns that many items to sort. This phase is my teammate\'s.' },
+]} caption="The only coupling between the two halves of the game is four localStorage keys." />
+
+<CodeWindow file="js/Classes/Goal.js" lang="js" href="https://github.com/Gabriel-S-Paiva/Arcadia/blob/b9ad994238bb24db1c41680959dce1517f506f50/js/Classes/Goal.js#L151-L159" caption="The whole handoff on my side." code={handoff} />
+
+## Physics without an engine
+
+The player is a point with velocity and acceleration, integrated with explicit Euler every frame. Gravity is 1,200 px/s², horizontal input is a force capped at 300 px/s, and when no key is held a drag term slows the player down. Frame time is clamped to 50 ms, so one long frame cannot move anything far enough to skip through a platform.
+
+Collision is axis-aligned boxes. When the player overlaps a platform, the smaller overlap decides the axis: push out sideways, or land on top, or hit your head. Three kinds of platform share that code:
+
+- **Solid** platforms block from every side.
+- **One-way** platforms can be jumped through from below. A landing only counts if the player's feet were above the platform on the previous frame and the player is not moving up relative to it.
+- **Moving** platforms carry the player. On landing, the player takes on the platform's velocity, so riding one does not jitter.
+
+<CodeWindow file="js/Classes/Player.js" lang="js" href="https://github.com/Gabriel-S-Paiva/Arcadia/blob/b9ad994238bb24db1c41680959dce1517f506f50/js/Classes/Player.js#L292-L358" caption="Platform collision: one-way rules first, then resolve along the axis with the smaller overlap." code={collision} />
+
+Boxes use the same overlap test. Pushing sideways hands half the player's speed to the box and slows the player, which is what makes a crate feel heavy. Boxes also fall, land on platforms and stack on each other.
+
+## Camera and debug view
+
+The level is 2,016 px wide, wider than the canvas. The camera has a dead zone in the middle 40% of the screen and only moves when the player leaves it, easing toward the target instead of snapping.
+
+<CodeWindow file="js/game.js" lang="js" href="https://github.com/Gabriel-S-Paiva/Arcadia/blob/b9ad994238bb24db1c41680959dce1517f506f50/js/game.js#L123-L152" caption="The camera: dead zone, easing and clamping to the world bounds." code={camera} />
+
+Pressing D draws every hitbox, the grid and the live player state over the game.
+
+<ShotWindow src={debug} alt="The same level with debug mode on: green platform hitboxes, yellow box hitboxes, cyan item hitboxes, a red player hitbox and a text overlay with position, velocity and grid data" title="arcadia / debug mode" caption="Debug mode: platforms in green, boxes in yellow, items in cyan, the player in red, and the state readout in the corner." />
+
+## Where it stands
+
+<Ledger title="status / arcadia" items={[
+  { state: 'done', text: 'Both phases finished and deployed, with every planned feature: platforming, collecting, gesture recognition and sorting.' },
+  { state: 'gap', text: 'Physics uses a variable timestep. Clamping dt avoids tunnelling, but jump height still shifts slightly with frame rate. A fixed timestep with interpolation would make it deterministic.' },
+  { state: 'gap', text: 'Items spawn from a list shuffled with sort(() => Math.random() - 0.5), which is a biased shuffle. A Fisher-Yates shuffle is the correct version.' },
+  { state: 'gap', text: 'The X and Z keys trigger an "attack" animation that was never defined, so they do nothing. Leftover input should have been removed.' },
+  { state: 'planned', text: 'Nothing is planned. It was a course project and it is finished.' },
+]} />
+
+## What I would change
+
+- Fixed timestep for the physics.
+- One collision routine shared by the player and the boxes. Right now the overlap math is written twice.
+- Name the phase handoff: a small module that owns the keys, instead of string literals on both sides.
+
+## Links
+
+- [Play it](https://cg-project-tsiw.vercel.app/)
+- [Repository](https://github.com/Gabriel-S-Paiva/Arcadia)

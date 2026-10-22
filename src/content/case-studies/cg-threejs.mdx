@@ -1,0 +1,123 @@
+---
+title: "cg-threejs"
+summary: "A solo 3D virtual pet in Three.js: modelled from code, driven by a small state machine, with a Rapier ragdoll and a microphone it answers back through."
+project: "project-cg-threejs"
+order: -2
+draft: true
+---
+import ShotWindow from '../../components/study/ShotWindow.astro';
+import CodeWindow from '../../components/study/CodeWindow.astro';
+import CarouselWindow from '../../components/study/CarouselWindow.astro';
+import Tldr from '../../components/study/Tldr.astro';
+import Facts from '../../components/study/Facts.astro';
+import Flow from '../../components/study/Flow.astro';
+import Ledger from '../../components/study/Ledger.astro';
+import scene from '../../assets/case-studies/cg-threejs/scene.png';
+import egg from '../../assets/case-studies/cg-threejs/egg.png';
+import eating from '../../assets/case-studies/cg-threejs/eating.png';
+import ragdoll from '../../assets/case-studies/cg-threejs/ragdoll.png';
+import debug from '../../assets/case-studies/cg-threejs/debug.png';
+import thirdPerson from '../../assets/case-studies/cg-threejs/third-person.png';
+// Code excerpts live in files and are imported raw: MDX strips indentation from multi-line attributes.
+import childUpdate from '../../assets/case-studies/cg-threejs/code/child-update.js?raw';
+import ragdollBody from '../../assets/case-studies/cg-threejs/code/ragdoll-body.js?raw';
+import micTrigger from '../../assets/case-studies/cg-threejs/code/mic-trigger.js?raw';
+
+{/*
+  DRAFT. Sources: the cg-threejs README and code at b37f1b3. All 51 commits are Gabi's (solo).
+  Screenshots: captured from a local `vite` run in headless Chromium (SwiftShader), not edited.
+  The room panorama behind the device (assets/bg.jpg) was checked for licensing as a course requirement (per Gabi).
+  The furniture models are third-party (Sketchfab, credited in the README); the face textures are Gabi's.
+*/}
+
+<Tldr
+  lead="A Tamagotchi in 3D, built alone for the Computer Graphics course. The pet is code: no imported character model."
+  points={[
+    { label: 'Mine', tone: 'brass', text: 'Everything in the repo: the procedural pet, its face textures, the state machine, Rapier physics and ragdoll, the microphone loop and the three cameras.' },
+    { label: 'Borrowed', tone: 'dim', text: 'The furniture models and sounds, from Sketchfab and Pixabay, all credited in the README.' },
+    { label: 'Honest', tone: 'green', text: 'The "lip-sync" is simpler than it sounds, and the error handling is too quiet. Both are explained below.' },
+  ]}
+/>
+
+## What it is
+
+A virtual pet inside a cardboard-style device with three buttons. It starts as an egg, hatches after 16 seconds (a riser sound starts 6 seconds before), and then lives in a small furnished room. The buttons make it eat, play or sleep. Shaking the scene knocks it over into a physics ragdoll. With the microphone on, it listens, and when you speak it repeats you back in a higher voice.
+
+<Facts items={[
+  { label: 'Role', value: 'Solo' },
+  { label: 'Built', value: 'Dec 2025 to Jan 2026, 51 commits' },
+  { label: 'Stack', value: 'Three.js, Rapier (WASM physics), Web Audio API, MediaRecorder, Vite' },
+  { label: 'Course', value: 'Computer Graphics, ESMAD, 2nd year' },
+]} />
+
+<ShotWindow src={scene} alt="The device floating in a room: a cardboard-textured frame holding a small furnished room with an egg in it, and three red buttons below" title="cg-threejs / scene view" caption="Scene view right after load, with the egg still waiting to hatch." />
+
+## A pet built from curves
+
+The character has no imported model. The head and body are `LatheGeometry`: a cubic Bézier curve in 2D, spun around an axis. The ears are capsules on pivots, and the hands and legs reuse the body shape at smaller scales. The face is a texture I drew, swapped by state: happy, eating, talking (open and closed) and dizzy for the ragdoll.
+
+The device is built the same way. It is a box with a smaller box subtracted from it using constructive solid geometry (`three-csg-ts`), which leaves the hollow room the pet lives in.
+
+Idle motion comes from layered sine waves rather than keyframes. Each ear swings on two sines of different speed and size, the body rises and falls with a breathing cycle, and the head bobs slightly.
+
+<CarouselWindow
+  title="cg-threejs / states"
+  maxHeight="min(70vh, 520px)"
+  caption="From the egg to three of the pet's states, all captured from the running build."
+  slides={[
+    { src: egg, label: 'Egg', alt: 'The egg inside the device room, before hatching' },
+    { src: eating, label: 'Eating', alt: 'The hatched pet with its eyes closed, chewing, using the eating face texture' },
+    { src: ragdoll, label: 'Ragdoll', alt: 'The pet tipped over in ragdoll mode with the dizzy face texture' },
+    { src: debug, label: 'Debug', alt: 'The same scene with Rapier collider outlines drawn over the room, the furniture and the pet' },
+  ]}
+/>
+
+## States
+
+<Flow title="pet / lifecycle" steps={[
+  { label: 'Egg', text: 'A timer runs. Six seconds before hatching, a riser sound starts. At 16 seconds the egg is swapped for the pet with a pop.' },
+  { label: 'Idle', text: 'Layered idle motion. Every few seconds it picks a new spot and walks there.' },
+  { label: 'Buttons', text: 'Left, middle and right switch to eating, playing and sleeping. Each has its own animation, and eating has its own face.' },
+  { label: 'Ragdoll', text: 'S shakes the scene. The animated pet is swapped for physics bodies for five seconds, then rebuilt and set back to idle.' },
+]} caption="One update method per state, chosen by a switch in Child.update()." />
+
+## The ragdoll handoff
+
+The interesting moment is the switch from animation to physics. An animated character has no physical velocity: it is moved by code. If the ragdoll bodies are created at rest, the pet stops dead and then falls, which looks wrong.
+
+So the pet measures its own velocity every frame, from how far its world position moved since the previous one. When the ragdoll starts, each new rigid body is created at the pose of the mesh it replaces and seeded with that velocity, before a random impulse knocks it over.
+
+<CodeWindow file="js/Model/Child.js" lang="js" href="https://github.com/Gabriel-S-Paiva/cg-threejs/blob/b37f1b3a15a15e9cdaf7a2e0f7d0c096f55dc4bb/js/Model/Child.js#L1172-L1191" caption="Every frame: measure world velocity from the position delta. In ragdoll mode, physics drives the mesh instead." code={childUpdate} />
+
+<CodeWindow file="js/Model/Child.js" lang="js" href="https://github.com/Gabriel-S-Paiva/cg-threejs/blob/b37f1b3a15a15e9cdaf7a2e0f7d0c096f55dc4bb/js/Model/Child.js#L369-L393" caption="The body's rigid body starts at the mesh's world pose and inherits the measured velocity. Continuous collision detection stops it from passing through the walls." code={ragdollBody} />
+
+The ragdoll is three bodies: a capsule for the torso and two balls for the hands, joined at the shoulders with spherical joints. The hands have strong angular damping, added in a later commit for stability. After five seconds the bodies are removed, the meshes are put back in their rest pose and the walking capsule is recreated.
+
+## Listening
+
+With the microphone on, an analyser reads the input every frame and computes its RMS level. Above a threshold, and at most once every 1.2 seconds, it records a 1.4-second clip, then plays it back at 1.8× speed, which raises the pitch.
+
+<CodeWindow file="js/Model/App.js" lang="js" href="https://github.com/Gabriel-S-Paiva/cg-threejs/blob/b37f1b3a15a15e9cdaf7a2e0f7d0c096f55dc4bb/js/Model/App.js#L264-L280" caption="The voice trigger: RMS over the time-domain samples, a threshold and a cooldown." code={micTrigger} />
+
+The README calls the mouth animation lip-sync. To be exact: while the clip plays, the face toggles between the open and closed mouth textures six times a second, for the length of the playback. It follows the duration, not the loudness. Driving it from the same RMS value as the trigger would be the honest version of lip-sync.
+
+## Three cameras
+
+Keys 1, 2 and 3 switch between the fixed scene view, first person through the pet's eyes and a third-person follow camera. In the last two, WASD walks the pet, which uses a Rapier capsule with locked rotation so it collides with the furniture and walls.
+
+<ShotWindow src={thirdPerson} alt="Third-person view from behind the pet's head, looking into the room past the yellow armchair" title="cg-threejs / third person" caption="Third-person mode, behind the pet." />
+
+## Where it stands
+
+<Ledger title="status / cg-threejs" items={[
+  { state: 'done', text: 'Hatching, four states, ragdoll, voice playback, three camera modes and a physics debug view. Delivered for the course.' },
+  { state: 'gap', text: 'There are 32 empty catch blocks across the code. They kept the demo from crashing, and they also hide every failure, including microphone and audio errors.' },
+  { state: 'gap', text: 'The mouth follows playback duration, not loudness.' },
+  { state: 'gap', text: 'Child.js is over 1,200 lines. Each state belongs in its own module.' },
+  { state: 'gap', text: 'No tests, and it is not deployed anywhere.' },
+  { state: 'planned', text: 'A playable demo hosted on my home server.' },
+]} />
+
+## Links
+
+- [Repository](https://github.com/Gabriel-S-Paiva/cg-threejs)

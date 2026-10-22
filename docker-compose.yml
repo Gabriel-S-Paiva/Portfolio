@@ -3,8 +3,14 @@ services:
     build:
       context: .
       network: host
+      args:
+        # set in ~/Portfolio/.env on the server
+        SITE_URL: ${SITE_URL:-}
     container_name: portfolio-app
     restart: unless-stopped
+    volumes:
+      # written by ops/status/status.py on the host; mount the directory, not the file
+      - ./status:/usr/share/nginx/html/status:ro
     networks:
       - global-web
 

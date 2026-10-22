@@ -1,0 +1,35 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import Window from './Window.astro';
+
+// Frame around a real screenshot or design export. Keep images in src/assets/case-studies/<slug>/.
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+  title?: string;
+  caption?: string;
+  /** CSS aspect-ratio, e.g. "16 / 10". Omit to keep the image's own ratio. */
+  aspect?: string;
+  /** CSS object-position used when `aspect` crops the image, e.g. "top". Defaults to center. */
+  focus?: string;
+  /** CSS length capping the image height, e.g. "min(70vh, 520px)". The image is letterboxed, not cropped. */
+  maxHeight?: string;
+}
+const { src, alt, title = 'preview', caption, aspect, focus = 'center', maxHeight } = Astro.props;
+---
+
+<Window title={title} caption={caption}>
+  <Image
+    src={src}
+    alt={alt}
+    widths={[480, 800, 1200]}
+    sizes="(min-width: 900px) 844px, 100vw"
+    class="shot"
+    style={aspect ? `aspect-ratio: ${aspect}; object-fit: cover; object-position: ${focus};` : maxHeight ? `max-height: ${maxHeight}; object-fit: contain;` : undefined}
+  />
+</Window>
+
+<style>
+  .shot { display: block; width: 100%; height: auto; }
+</style>

@@ -1,0 +1,61 @@
+---
+import Layout from './Layout.astro';
+import Nav from '../components/Nav.svelte';
+import Footer from '../components/Footer.svelte';
+
+interface Props {
+  title: string;
+  summary: string;
+  project: {
+    role: string;
+    date: string;
+    awardBadge?: string;
+    stack: string[];
+    repoUrl?: string;
+    shot?: string;
+  };
+}
+const { title, summary, project } = Astro.props;
+---
+
+<Layout title={`${title} | Gabriel Paiva`} description={summary}>
+  <Nav client:load current={Astro.url.pathname} />
+
+  <main class="max-w-[900px] mx-auto px-7 pt-16 pb-10">
+    <a href="/showcase" class="font-[family-name:var(--font-mono)] text-xs text-[var(--dim)] no-underline hover:text-[var(--brass)] transition-colors">← Showcase</a>
+
+    <header class="mt-8 max-w-[680px]">
+      <h1 class="t-h1">{title}</h1>
+      <p class="mt-5 t-lead text-[var(--dim)]">{summary}</p>
+
+      <div class="mt-6 text-sm text-[var(--brass)] flex flex-wrap items-center gap-x-3 gap-y-2">
+        <span>{project.role}</span>
+        {project.awardBadge && (
+          <span class="font-[family-name:var(--font-mono)] t-micro bg-[#c99a5b15] border border-[#c99a5b30] px-2 py-0.5 rounded">{project.awardBadge}</span>
+        )}
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-1.5">
+        {project.stack.map((t) => (
+          <span class="font-[family-name:var(--font-mono)] t-micro text-[var(--green)] bg-[#6fcf9714] border border-[#6fcf9730] px-2 py-0.5 rounded">{t}</span>
+        ))}
+      </div>
+
+      {project.repoUrl && (
+        <a href={project.repoUrl} target="_blank" rel="noopener" class="mt-5 inline-block text-sm text-[var(--dim)] underline decoration-dotted decoration-[var(--dimmer)] hover:text-[var(--brass)] hover:decoration-[var(--brass)]">GitHub Repository ↗</a>
+      )}
+    </header>
+
+    {project.shot?.startsWith("/") && (
+      <figure class="mt-10 max-w-[844px] overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--surface)]">
+        <img src={project.shot} alt={`${title} project cover`} width="1920" height="960" loading="eager" class="block w-full h-auto" />
+      </figure>
+    )}
+
+    <article class="study mt-12 max-w-[844px]">
+      <slot />
+    </article>
+  </main>
+
+  <Footer />
+</Layout>

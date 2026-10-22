@@ -1,0 +1,58 @@
+---
+// Top-of-page summary: one lead sentence, then a few labelled points for skimmers.
+interface Props {
+  lead: string;
+  points: { label: string; text: string; tone?: 'brass' | 'green' | 'dim' }[];
+}
+const { lead, points } = Astro.props;
+---
+
+<aside class="tldr" aria-label="Summary">
+  <div class="bar"><span class="dot" aria-hidden="true"></span>tl;dr</div>
+  <p class="lead">{lead}</p>
+  <ul class="points">
+    {points.map((p) => (
+      <li class={`point ${p.tone ?? 'brass'}`}>
+        <span class="label">{p.label}</span>
+        <span class="text">{p.text}</span>
+      </li>
+    ))}
+  </ul>
+</aside>
+
+<style>
+  .tldr {
+    margin: 0 0 2.75rem;
+    border: 1px solid var(--line); border-radius: 12px;
+    background: var(--surface-2); overflow: clip;
+    box-shadow: 0 14px 32px -24px rgb(0 0 0 / 0.35);
+  }
+  .bar {
+    display: flex; align-items: center; gap: .5rem;
+    padding: .625rem 1rem; border-bottom: 1px solid var(--line);
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: .04em; color: var(--dim);
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--brass); }
+  .lead {
+    margin: 0; padding: 1.25rem 1.25rem 1.5rem;
+    font-size: var(--text-lead); line-height: 1.5; letter-spacing: -0.01em; color: var(--text);
+  }
+  .points {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    border-top: 1px solid var(--line);
+  }
+  .point {
+    --accent: var(--brass);
+    margin: 0 -1px -1px 0; padding: 1rem 1.25rem;
+    border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    display: flex; flex-direction: column; gap: .4rem;
+  }
+  .point.green { --accent: var(--green); }
+  .point.dim { --accent: var(--dimmer); }
+  .label {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--accent);
+  }
+  .text { font-size: 14px; line-height: 1.5; color: var(--dim); }
+</style>

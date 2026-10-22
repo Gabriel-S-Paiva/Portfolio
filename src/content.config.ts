@@ -1,6 +1,6 @@
 import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
-import { glob } from 'astro/loaders';
+import { glob, file } from 'astro/loaders';
 
 const projects = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/projects' }),
@@ -14,6 +14,8 @@ const projects = defineCollection({
     commit: z.string(),
     shot: z.string().optional(),
     order: z.number().optional(),
+    // Shown as a Work card on the landing page. Keep in sync with published case studies.
+    featured: z.boolean().default(true),
   }),
 });
 
@@ -41,4 +43,46 @@ const education = defineCollection({
   }),
 });
 
-export const collections = { projects, awards, education };
+const caseStudies = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/case-studies' }),
+  schema: z.object({
+    title: z.string(),
+    summary: z.string(),
+    // id of the matching entry in the `projects` collection (reuses role, stack, award, repo)
+    project: z.string(),
+    order: z.number().default(0),
+    draft: z.boolean().default(false),
+  }),
+});
+
+const repos = defineCollection({
+  loader: file('./src/content/repos.json'),
+  schema: z.object({
+    name: z.string(),
+    description: z.string(),
+    url: z.url(),
+    language: z.string(),
+    kind: z.enum(['solo', 'team', 'hackathon', 'course']),
+    year: z.string(),
+    // id of a published case study, when one exists
+    study: z.string().optional(),
+    archived: z.boolean().default(false),
+  }),
+});
+
+const blog = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/blog' }),
+  schema: z.object({
+    title: z.string(),
+    summary: z.string(),
+    // When the thing the post is about happened.
+    date: z.coerce.date(),
+    // When the post was written, if later than `date` (posts written looking back).
+    written: z.coerce.date().optional(),
+    tags: z.array(z.string()).default([]),
+    // Drafts render only in `pnpm dev`; production builds skip them.
+    draft: z.boolean().default(true),
+  }),
+});
+
+export const collections = { projects, awards, education, caseStudies, repos, blog };

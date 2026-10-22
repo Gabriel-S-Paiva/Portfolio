@@ -1,0 +1,93 @@
+[
+  {
+    "id": "cloud",
+    "name": "Cloud",
+    "description": "Self-hosted family cloud storage: Go backend, SvelteKit 5 frontend, SQLite, Docker Compose and Caddy.",
+    "url": "https://github.com/Gabriel-S-Paiva/Cloud",
+    "language": "Go",
+    "kind": "solo",
+    "year": "2026"
+  },
+  {
+    "id": "portfolio",
+    "name": "Portfolio",
+    "description": "This site: Astro with Svelte islands, built with Docker and served by nginx behind Caddy on my home server.",
+    "url": "https://github.com/Gabriel-S-Paiva/Portfolio",
+    "language": "Astro",
+    "kind": "solo",
+    "year": "2026"
+  },
+  {
+    "id": "hackathon-4best-backend",
+    "name": "hackathon-4best-backend",
+    "description": "Legacy backend sketch from the TeamGreen4All hackathon (1st place): MVC structure and the SQLite data model.",
+    "url": "https://github.com/Gabriel-S-Paiva/hackathon-4best-backend",
+    "language": "JavaScript",
+    "kind": "hackathon",
+    "year": "2026"
+  },
+  {
+    "id": "p2-sam-backend",
+    "name": "p2-sam-backend",
+    "description": "Project SAM: REST API backend for a municipal support platform (Node.js, Express, MySQL, MongoDB). Best WebPII Project 2025/26.",
+    "url": "https://github.com/Gabriel-S-Paiva/p2-sam-backend",
+    "language": "JavaScript",
+    "kind": "team",
+    "year": "2026"
+  },
+  {
+    "id": "p2-sam-automated-tests",
+    "name": "p2-sam-automated-tests",
+    "description": "Automated test suite for Project SAM, run against the deployed system: Selenium acceptance checks, Postman/Newman API collections and JMeter load tests. Two contributors.",
+    "url": "https://github.com/Gabriel-S-Paiva/p2-sam-automated-tests",
+    "language": "JavaScript",
+    "kind": "team",
+    "year": "2026"
+  },
+  {
+    "id": "planit",
+    "name": "PlanIt",
+    "description": "Client-only travel planner with a gamification layer. ESMAD Best Project 2024/25.",
+    "url": "https://github.com/Gabriel-S-Paiva/PlanIt",
+    "language": "JavaScript",
+    "kind": "team",
+    "year": "2025"
+  },
+  {
+    "id": "arcadia",
+    "name": "Arcadia",
+    "description": "2D canvas game: I built the platformer phase, a teammate built the hand-gesture AR phase and the menu.",
+    "url": "https://github.com/Gabriel-S-Paiva/Arcadia",
+    "language": "JavaScript",
+    "kind": "team",
+    "year": "2025"
+  },
+  {
+    "id": "cg-threejs",
+    "name": "cg-threejs",
+    "description": "Solo 3D virtual pet for Computer Graphics: Three.js rendering, Rapier physics with ragdoll, procedural animation, microphone-driven lip-sync.",
+    "url": "https://github.com/Gabriel-S-Paiva/cg-threejs",
+    "language": "JavaScript",
+    "kind": "course",
+    "year": "2026"
+  },
+  {
+    "id": "pw1-eco-tracker",
+    "name": "pw1-eco-tracker",
+    "description": "b.green: family eco-footprint tracker with gamified tasks, leaderboards, an admin dashboard and an AI chatbot. Vue 3, Pinia and Tailwind against a custom API. Team of three, 199 commits. Archived fork.",
+    "url": "https://github.com/Gabriel-S-Paiva/pw1-eco-tracker",
+    "language": "Vue",
+    "kind": "team",
+    "year": "2025",
+    "archived": true
+  },
+  {
+    "id": "mosaic",
+    "name": "mosaic",
+    "description": "Summer solo project: a Vue 3, Pinia and TypeScript dashboard, built by working through the book I won with PlanIt. My first TypeScript. UI-first, persistence not built.",
+    "url": "https://github.com/Gabriel-S-Paiva/mosaic",
+    "language": "Vue",
+    "kind": "solo",
+    "year": "2025"
+  }
+]

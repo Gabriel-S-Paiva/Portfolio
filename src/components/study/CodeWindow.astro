@@ -1,0 +1,61 @@
+---
+import { Code } from 'astro:components';
+import Window from './Window.astro';
+
+// A real excerpt in an editor-style pane. `href` should be a GitHub permalink.
+interface Props {
+  file: string;
+  code: string;
+  lang: string;
+  href?: string;
+  caption?: string;
+  // Long excerpts get a fold toggle, open by default. Default: foldable above 25 lines.
+  collapse?: boolean;
+}
+const { file, code, lang, href, caption, collapse } = Astro.props;
+const lines = code.trimEnd().split(/\r?\n/).length;
+const collapsed = collapse ?? lines > 25;
+---
+
+<Window title={file} caption={caption}>
+  {collapsed ? (
+    <details class="fold" open>
+      <summary>Code <span>({lines} lines)</span></summary>
+      <div class="code">
+        <Code code={code} lang={lang} themes={{ light: 'github-light', dark: 'github-dark' }} defaultColor={false} />
+      </div>
+    </details>
+  ) : (
+    <div class="code">
+      <Code code={code} lang={lang} themes={{ light: 'github-light', dark: 'github-dark' }} defaultColor={false} />
+    </div>
+  )}
+  {href && (
+    <div class="source">
+      <a href={href} target="_blank" rel="noopener">View source on GitHub ↗</a>
+    </div>
+  )}
+</Window>
+
+<style>
+  .code :global(pre) {
+    margin: 0; padding: 1rem; overflow-x: auto;
+    font-family: var(--font-mono); font-size: 12.5px; line-height: 1.65;
+  }
+  .fold summary {
+    cursor: pointer; padding: .625rem 1rem; list-style: none;
+    font-family: var(--font-mono); font-size: 12px; color: var(--dim);
+  }
+  .fold summary::-webkit-details-marker { display: none; }
+  .fold summary::before { content: '▸ '; }
+  .fold[open] summary::before { content: '▾ '; }
+  .fold[open] summary { border-bottom: 1px solid var(--line); }
+  .fold summary:hover { color: var(--brass); }
+  .fold summary span { color: var(--dimmer); }
+  .source {
+    padding: .5rem 1rem; border-top: 1px solid var(--line);
+    font-family: var(--font-mono); font-size: 12px;
+  }
+  .source a { color: var(--dim); text-decoration: none; }
+  .source a:hover { color: var(--brass); }
+</style>
