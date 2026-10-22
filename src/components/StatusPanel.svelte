@@ -14,12 +14,14 @@
   let now = $state(Date.now());
 
   // Dev only: ?status=ok|down|stale|fail picks a fixture so every state can be exercised.
+  // Without the param the fixture keeps its real (old) timestamp, so dev shows the stale state like production would.
   function devUrl(): { url: string; fresh: boolean } {
-    const mode = new URLSearchParams(location.search).get('status') ?? 'ok';
+    const mode = new URLSearchParams(location.search).get('status');
+    if (mode === 'ok') return { url: '/status/status.json', fresh: true };
     if (mode === 'down') return { url: '/status/fixtures/down.json', fresh: true };
     if (mode === 'stale') return { url: '/status/fixtures/stale.json', fresh: false };
     if (mode === 'fail') return { url: '/status/does-not-exist.json', fresh: false };
-    return { url: '/status/status.json', fresh: true };
+    return { url: '/status/status.json', fresh: false };
   }
 
   async function load() {
