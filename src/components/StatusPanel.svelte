@@ -1,11 +1,12 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { formatAgo, isStale, parseStatus, type StatusPayload } from '../lib/status';
+  import { formatAgo, isStale, parseStatus, STATUS_IS_REMOTE, STATUS_URL, type StatusPayload } from '../lib/status';
 
   // Link to the infra write-up. Leave undefined while the post is unpublished: no link is rendered.
   let { href = undefined }: { href?: string } = $props();
 
-  const POLL_MS = 30_000;
+  // The remote copy only changes every few minutes (push interval + CDN cache), so poll it less often.
+  const POLL_MS = STATUS_IS_REMOTE ? 60_000 : 30_000;
 
   let data = $state<StatusPayload | null>(null);
   let lastSeen = $state<number | null>(null); // generatedAt of the last valid file, in Unix seconds
@@ -26,7 +27,7 @@
 
   async function load() {
     try {
-      let url = '/status/status.json';
+      let url = STATUS_URL;
       let fresh = false;
       if (import.meta.env.DEV) ({ url, fresh } = devUrl());
       const res = await fetch(url, { cache: 'no-store' });

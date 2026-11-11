@@ -1,4 +1,10 @@
-export const STALE_AFTER_S = 180;
+// Build-time config. The LAN/Docker build sets neither and reads the bind-mounted file, refreshed every 60 s.
+// The GitHub Pages build points at the `status` branch on raw.githubusercontent.com, which the server
+// pushes every 10 min and GitHub caches for about 5 min, so it needs a longer stale threshold.
+export const STATUS_URL: string = import.meta.env.PUBLIC_STATUS_URL || '/status/status.json';
+export const STALE_AFTER_S: number = Number(import.meta.env.PUBLIC_STATUS_STALE_S) || 180;
+/** True when the panel reads a remote copy instead of the local file. */
+export const STATUS_IS_REMOTE: boolean = /^https?:\/\//.test(STATUS_URL);
 
 export type ServiceStatus = { name: string; state: 'up' | 'down'; uptime: string | null };
 export type StatusPayload = {

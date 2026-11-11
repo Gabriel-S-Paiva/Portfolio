@@ -1,0 +1,50 @@
+name: Pages
+# Builds the static site on a GitHub-hosted runner and publishes dist/ to the
+# Gabriel-S-Paiva.github.io repo (Settings -> Pages: deploy from branch main, root).
+# The self-hosted Docker deploy (deploy.yml) is separate and stays LAN-only staging.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: 11.17.0 # keep in sync with the Dockerfile
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - run: pnpm build
+        env:
+          SITE_URL: https://gabriel-s-paiva.github.io
+          # Pushed every 10 min by ops/status/push.sh on the home server; raw is cached ~5 min.
+          PUBLIC_STATUS_URL: https://raw.githubusercontent.com/Gabriel-S-Paiva/Portfolio/status/status.json
+          PUBLIC_STATUS_STALE_S: "1800"
+      - name: Drop dev fixtures, disable Jekyll (it would skip _astro/)
+        run: |
+          rm -rf dist/status
+          touch dist/.nojekyll
+      - uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e # v4.0.0
+        with:
+          deploy_key: ${{ secrets.PAGES_DEPLOY_KEY }}
+          external_repository: Gabriel-S-Paiva/Gabriel-S-Paiva.github.io
+          publish_branch: main
+          publish_dir: ./dist
+          force_orphan: true
+          user_name: github-actions[bot]
+          user_email: 41898282+github-actions[bot]@users.noreply.github.com
+          full_commit_message: Deploy ${{ github.sha }}
