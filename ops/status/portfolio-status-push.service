@@ -1,0 +1,6 @@
+[Unit]
+Description=Push the portfolio status file to the GitHub status branch
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh %h/bin/status-push.sh

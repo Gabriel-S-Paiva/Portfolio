@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Write the public status file for the portfolio hero panel.
 
-Runs on the host (cron), never inside a container. Allowlist-only output:
+Runs on the host (systemd user timer), never inside a container. Allowlist-only output:
 no container IDs, ports, IPs, env vars, image names or logs.
 If Docker fails the script exits without writing, so the file goes stale and
 the site says so. It never writes fake or default data.
