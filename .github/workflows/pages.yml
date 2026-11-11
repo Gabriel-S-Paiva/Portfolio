@@ -34,8 +34,9 @@ jobs:
       - run: pnpm build
         env:
           SITE_URL: https://gabriel-s-paiva.github.io
-          # Pushed every 10 min by ops/status/push.sh on the home server; raw is cached ~5 min.
-          PUBLIC_STATUS_URL: https://raw.githubusercontent.com/Gabriel-S-Paiva/Portfolio/status/status.json
+          # Pushed every 10 min by ops/status/push.sh on the home server to its own data-only
+          # repo (the server key has no access to this one); raw is cached ~5 min.
+          PUBLIC_STATUS_URL: https://raw.githubusercontent.com/Gabriel-S-Paiva/portfolio-status/main/status.json
           PUBLIC_STATUS_STALE_S: "1800"
       - name: Drop dev fixtures, disable Jekyll (it would skip _astro/)
         run: |
