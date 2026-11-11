@@ -1,5 +1,5 @@
 [Unit]
-Description=Push the portfolio status file to the GitHub status branch
+Description=Push the portfolio status file to the portfolio-status repo
 
 [Service]
 Type=oneshot

@@ -17,6 +17,9 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # PAGES_DEPLOY_KEY lives in this environment, which only main may deploy from,
+    # so a workflow pushed on any other branch cannot read it.
+    environment: pages-publish
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
@@ -31,8 +34,9 @@ jobs:
       - run: pnpm build
         env:
           SITE_URL: https://gabriel-s-paiva.github.io
-          # Pushed every 10 min by ops/status/push.sh on the home server; raw is cached ~5 min.
-          PUBLIC_STATUS_URL: https://raw.githubusercontent.com/Gabriel-S-Paiva/Portfolio/status/status.json
+          # Pushed every 10 min by ops/status/push.sh on the home server to its own data-only
+          # repo (the server key has no access to this one); raw is cached ~5 min.
+          PUBLIC_STATUS_URL: https://raw.githubusercontent.com/Gabriel-S-Paiva/portfolio-status/main/status.json
           PUBLIC_STATUS_STALE_S: "1800"
       - name: Drop dev fixtures, disable Jekyll (it would skip _astro/)
         run: |
